@@ -29,3 +29,14 @@ CREATE TABLE IF NOT EXISTS daily_responses (
         report_date
     )
 );
+
+-- 3. Anomaly reports (written by the Anomaly Detection Service)
+CREATE TABLE IF NOT EXISTS anomaly_reports (
+    id BIGSERIAL PRIMARY KEY,
+    report_date DATE NOT NULL,
+    flagged_count INTEGER NOT NULL DEFAULT 0,
+    ai_summary TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_anomaly_reports_date ON anomaly_reports (report_date);

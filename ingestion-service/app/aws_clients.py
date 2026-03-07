@@ -8,7 +8,8 @@ from app.config import get_settings
 
 def _session() -> aioboto3.Session:
     s = get_settings()
-    kwargs: dict = {"region_name": s.aws_region}
+    kwargs: dict = {"r"
+    "egion_name": s.aws_region}
     if s.aws_access_key_id:
         kwargs["aws_access_key_id"] = s.aws_access_key_id
         kwargs["aws_secret_access_key"] = s.aws_secret_access_key
