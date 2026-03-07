@@ -1,0 +1,490 @@
+{
+  "info": {
+    "name": "WelfareWatch — AI Anomaly Engine",
+    "description": "Complete API collection for the WelfareWatch AI Anomaly Classification Engine.\n\n**Base URL:** `{{base_url}}`  \n**Auth:** All `/api/anomaly/*` routes require the `X-Engine-Secret` header.\n\n---\n\n### Setup\n1. Import this collection into Postman.\n2. Create an environment with the variables below.\n3. Run **Health Check** first to confirm the server and DB are up.\n\n### Environment Variables\n| Variable | Example Value |\n|---|---|\n| `base_url` | `http://localhost:3000` |\n| `engine_secret` | *(value of ENGINE_SECRET in your .env)* |\n| `anomaly_id` | `aaaaaaaa-0000-0000-0000-000000000001` |",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url",      "value": "http://localhost:3000", "type": "string" },
+    { "key": "engine_secret", "value": "",                      "type": "string" },
+    { "key": "anomaly_id",    "value": "aaaaaaaa-0000-0000-0000-000000000001", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            },
+            "description": "Returns server and DB health status. No authentication required.\n\n**Expected 200:**\n```json\n{\n  \"status\": \"healthy\",\n  \"timestamp\": \"2026-03-07T09:00:00.000Z\",\n  \"services\": {\n    \"database\": \"ok\",\n    \"openai\": \"configured\"\n  }\n}\n```\n\n**503** is returned when the DB is unreachable."
+          },
+          "response": [
+            {
+              "name": "200 Healthy",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"status\": \"healthy\",\n  \"timestamp\": \"2026-03-07T09:00:00.000Z\",\n  \"services\": {\n    \"database\": \"ok\",\n    \"openai\": \"configured\"\n  }\n}"
+            },
+            {
+              "name": "503 Degraded",
+              "status": "Service Unavailable",
+              "code": 503,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"status\": \"degraded\",\n  \"timestamp\": \"2026-03-07T09:00:00.000Z\",\n  \"services\": {\n    \"database\": \"error\",\n    \"openai\": \"configured\"\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Classify",
+      "item": [
+        {
+          "name": "Classify Single — NO_SPIKE (CRITICAL)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type",    "value": "application/json" },
+              { "key": "X-Engine-Secret", "value": "{{engine_secret}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/anomaly/classify",
+              "host": ["{{base_url}}"],
+              "path": ["api", "anomaly", "classify"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"bbbbbbbb-0000-0000-0000-000000000001\",\n  \"date\": \"2026-03-07\",\n  \"detector_type\": \"NO_SPIKE\",\n  \"level\": \"PINCODE\",\n  \"pincode\": \"605001\",\n  \"block\": \"Vikravandi\",\n  \"district\": \"Villupuram\",\n  \"state\": \"Tamil Nadu\",\n  \"scheme_id\": \"PDS\",\n  \"severity\": \"CRITICAL\",\n  \"score\": 4.8,\n  \"no_pct\": 0.81,\n  \"baseline_no_pct\": 0.29,\n  \"total_responses\": 158,\n  \"affected_beneficiaries\": 210,\n  \"raw_data\": {\n    \"z_score\": 4.8,\n    \"today_no_pct\": 0.81,\n    \"baseline_no_pct\": 0.29,\n    \"std_dev\": 0.109,\n    \"window\": \"2026-03-07#14\"\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Classifies a single anomaly record using OpenAI and writes the result back to `anomaly_records` in the database.\n\n**Auth:** `X-Engine-Secret` header required.\n\n**Body fields:**\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `id` | UUID string | ✅ | Must exist in `anomaly_records` |\n| `date` | YYYY-MM-DD | ✅ | Anomaly date |\n| `detector_type` | enum | ✅ | `NO_SPIKE` \\| `SILENCE` \\| `DUPLICATE_BENEFICIARY` \\| `DISTRICT_ROLLUP` |\n| `level` | enum | ✅ | `PINCODE` \\| `BLOCK` \\| `DISTRICT` |\n| `pincode` | 6-digit string | ✅ if PINCODE | - |\n| `block` | string | ✅ if not DISTRICT | - |\n| `district` | string | ✅ | - |\n| `state` | string | - | - |\n| `scheme_id` | enum | ✅ | `PDS` \\| `PM_KISAN` \\| `OLD_AGE_PENSION` \\| `LPG` |\n| `severity` | enum | ✅ | `CRITICAL` \\| `HIGH` \\| `MEDIUM` \\| `LOW` |\n| `score` | number | - | z-score or ratio |\n| `no_pct` | 0.0–1.0 | - | Today's NO% |\n| `baseline_no_pct` | 0.0–1.0 | - | 7-day mean NO% |\n| `total_responses` | integer | - | |\n| `affected_beneficiaries` | integer | - | |\n| `raw_data` | object | - | Full detector output |"
+          },
+          "response": [
+            {
+              "name": "200 Classified",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"anomaly_id\": \"bbbbbbbb-0000-0000-0000-000000000001\",\n  \"result\": {\n    \"ai_classification\": \"SUPPLY_FAILURE\",\n    \"ai_confidence\": 0.91,\n    \"ai_reasoning\": \"NO% spiked to 81% vs 7-day baseline of 29% — z-score 4.8 indicates a non-random event. Pattern consistent with FPS distribution point not opening.\",\n    \"ai_action\": \"Conduct immediate field visit to FPS store at 605001. Verify stock availability and dealer attendance.\",\n    \"ai_action_ta\": \"605001 இல் உள்ள FPS கடைக்கு உடனடி கள வருகை மேற்கொள்ளவும். பங்கு கிடைக்கும் தன்மையை சரிபார்க்கவும்.\",\n    \"ai_urgency\": \"TODAY\",\n    \"signals_used\": [\"z_score_4.8\", \"no_pct_0.81\", \"distribution_window_active\"],\n    \"confidence_adjustments\": [\n      { \"factor\": \"high_sample_size\", \"delta\": 0.05 },\n      { \"factor\": \"score_exceeds_2x_threshold\", \"delta\": 0.05 }\n    ]\n  },\n  \"meta\": {\n    \"model\": \"gpt-4o-mini\",\n    \"total_tokens\": 1015,\n    \"latency_ms\": 1842,\n    \"cost_usd\": 0.00024\n  }\n}"
+            },
+            {
+              "name": "500 OpenAI or DB error",
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"anomaly_id\": \"bbbbbbbb-0000-0000-0000-000000000001\",\n  \"error\": \"OpenAI API error: insufficient_quota\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Classify Single — SILENCE (HIGH)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type",    "value": "application/json" },
+              { "key": "X-Engine-Secret", "value": "{{engine_secret}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/anomaly/classify",
+              "host": ["{{base_url}}"],
+              "path": ["api", "anomaly", "classify"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"bbbbbbbb-0000-0000-0000-000000000002\",\n  \"date\": \"2026-03-07\",\n  \"detector_type\": \"SILENCE\",\n  \"level\": \"PINCODE\",\n  \"pincode\": \"603002\",\n  \"block\": \"Madurantakam\",\n  \"district\": \"Chengalpattu\",\n  \"state\": \"Tamil Nadu\",\n  \"scheme_id\": \"OLD_AGE_PENSION\",\n  \"severity\": \"HIGH\",\n  \"score\": 0.77,\n  \"no_pct\": null,\n  \"baseline_no_pct\": null,\n  \"total_responses\": 3,\n  \"affected_beneficiaries\": 87,\n  \"raw_data\": {\n    \"expected_responses\": 26,\n    \"actual_responses\": 3,\n    \"silence_ratio\": 0.885,\n    \"threshold\": 0.60\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Tests the SILENCE detector type — low response count from expected beneficiaries."
+          },
+          "response": []
+        },
+        {
+          "name": "Classify Single — DISTRICT_ROLLUP (HIGH)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type",    "value": "application/json" },
+              { "key": "X-Engine-Secret", "value": "{{engine_secret}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/anomaly/classify",
+              "host": ["{{base_url}}"],
+              "path": ["api", "anomaly", "classify"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"bbbbbbbb-0000-0000-0000-000000000003\",\n  \"date\": \"2026-03-07\",\n  \"detector_type\": \"DISTRICT_ROLLUP\",\n  \"level\": \"DISTRICT\",\n  \"pincode\": null,\n  \"block\": null,\n  \"district\": \"Villupuram\",\n  \"state\": \"Tamil Nadu\",\n  \"scheme_id\": \"PM_KISAN\",\n  \"severity\": \"HIGH\",\n  \"score\": 0.44,\n  \"no_pct\": 0.44,\n  \"baseline_no_pct\": 0.21,\n  \"total_responses\": 1920,\n  \"affected_beneficiaries\": 3400,\n  \"raw_data\": {\n    \"flagged_blocks\": [\"Vikravandi\", \"Ulundurpet\", \"Kallakurichi\"],\n    \"district_no_pct\": 0.44,\n    \"threshold\": 0.40,\n    \"min_flagged_blocks\": 3\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Tests the DISTRICT_ROLLUP detector type — multiple blocks simultaneously exceeding NO% threshold."
+          },
+          "response": []
+        },
+        {
+          "name": "Classify Single — DUPLICATE_BENEFICIARY (MEDIUM)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type",    "value": "application/json" },
+              { "key": "X-Engine-Secret", "value": "{{engine_secret}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/anomaly/classify",
+              "host": ["{{base_url}}"],
+              "path": ["api", "anomaly", "classify"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"bbbbbbbb-0000-0000-0000-000000000004\",\n  \"date\": \"2026-03-07\",\n  \"detector_type\": \"DUPLICATE_BENEFICIARY\",\n  \"level\": \"PINCODE\",\n  \"pincode\": \"605004\",\n  \"block\": \"Vikravandi\",\n  \"district\": \"Villupuram\",\n  \"state\": \"Tamil Nadu\",\n  \"scheme_id\": \"PM_KISAN\",\n  \"severity\": \"MEDIUM\",\n  \"score\": 4,\n  \"no_pct\": null,\n  \"baseline_no_pct\": null,\n  \"total_responses\": 4,\n  \"affected_beneficiaries\": 1,\n  \"raw_data\": {\n    \"duplicate_count\": 4,\n    \"phone_hash\": \"hash_pmk_005\",\n    \"response_times\": [\"10:01\", \"11:30\", \"13:45\", \"15:20\"]\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Tests the DUPLICATE_BENEFICIARY detector type — same phone_hash responded 4 times in one day."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Batch",
+      "item": [
+        {
+          "name": "Classify Batch — 2 anomalies",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type",    "value": "application/json" },
+              { "key": "X-Engine-Secret", "value": "{{engine_secret}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/anomaly/classify/batch",
+              "host": ["{{base_url}}"],
+              "path": ["api", "anomaly", "classify", "batch"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"anomalies\": [\n    {\n      \"id\": \"cccccccc-0000-0000-0000-000000000001\",\n      \"date\": \"2026-03-07\",\n      \"detector_type\": \"NO_SPIKE\",\n      \"level\": \"PINCODE\",\n      \"pincode\": \"603001\",\n      \"block\": \"Madurantakam\",\n      \"district\": \"Chengalpattu\",\n      \"state\": \"Tamil Nadu\",\n      \"scheme_id\": \"PDS\",\n      \"severity\": \"HIGH\",\n      \"score\": 2.3,\n      \"no_pct\": 0.54,\n      \"baseline_no_pct\": 0.27,\n      \"total_responses\": 62,\n      \"affected_beneficiaries\": 150,\n      \"raw_data\": { \"z_score\": 2.3, \"std_dev\": 0.117 }\n    },\n    {\n      \"id\": \"cccccccc-0000-0000-0000-000000000002\",\n      \"date\": \"2026-03-07\",\n      \"detector_type\": \"SILENCE\",\n      \"level\": \"BLOCK\",\n      \"pincode\": null,\n      \"block\": \"Gingee\",\n      \"district\": \"Villupuram\",\n      \"state\": \"Tamil Nadu\",\n      \"scheme_id\": \"LPG\",\n      \"severity\": \"MEDIUM\",\n      \"score\": 0.52,\n      \"no_pct\": null,\n      \"baseline_no_pct\": null,\n      \"total_responses\": 14,\n      \"affected_beneficiaries\": 230,\n      \"raw_data\": {\n        \"expected_responses\": 46,\n        \"actual_responses\": 14,\n        \"silence_ratio\": 0.696\n      }\n    }\n  ]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Classifies multiple anomaly records in one request (sequential, to respect OpenAI rate limits). Max batch size is controlled by the `BATCH_SIZE` env var (default: 5).\n\n**Body:** `{ \"anomalies\": [ ...anomaly objects... ] }`\n\n**Limits:**\n- Minimum: 1 record\n- Maximum: `BATCH_SIZE` (default 5)\n- Requests are processed sequentially with 200ms delays between calls"
+          },
+          "response": [
+            {
+              "name": "200 Batch result",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"summary\": {\n    \"total\": 2,\n    \"succeeded\": 2,\n    \"failed\": 0\n  },\n  \"results\": [\n    {\n      \"success\": true,\n      \"anomaly_id\": \"cccccccc-0000-0000-0000-000000000001\",\n      \"result\": { \"ai_classification\": \"SUPPLY_FAILURE\", \"ai_confidence\": 0.78 }\n    },\n    {\n      \"success\": true,\n      \"anomaly_id\": \"cccccccc-0000-0000-0000-000000000002\",\n      \"result\": { \"ai_classification\": \"DATA_ARTIFACT\", \"ai_confidence\": 0.61 }\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Classify Pending — from DB",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "X-Engine-Secret", "value": "{{engine_secret}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/anomaly/classify/pending?limit=5",
+              "host": ["{{base_url}}"],
+              "path": ["api", "anomaly", "classify", "pending"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "5",
+                  "description": "Max records to pull from DB. Defaults to BATCH_SIZE env var."
+                }
+              ]
+            },
+            "description": "Queries `anomaly_records` for all rows where `ai_classification IS NULL OR ai_classification = 'PENDING'`, ordered by severity (CRITICAL first), then classifies them.\n\nThis is the main **automated pipeline trigger** — call this on a schedule (e.g. every 5 minutes) to keep all anomalies classified.\n\n**Query params:**\n| Param | Default | Description |\n|---|---|---|\n| `limit` | `BATCH_SIZE` env var | Max records to process per call |"
+          },
+          "response": [
+            {
+              "name": "200 No pending",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"message\": \"No pending anomalies found\",\n  \"summary\": { \"total\": 0, \"succeeded\": 0, \"failed\": 0 },\n  \"results\": []\n}"
+            },
+            {
+              "name": "200 Processed",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"summary\": { \"total\": 3, \"succeeded\": 3, \"failed\": 0 },\n  \"results\": [...]\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Results & Stats",
+      "item": [
+        {
+          "name": "Get Anomaly Result by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-Engine-Secret", "value": "{{engine_secret}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/anomaly/{{anomaly_id}}/result",
+              "host": ["{{base_url}}"],
+              "path": ["api", "anomaly", "{{anomaly_id}}", "result"]
+            },
+            "description": "Fetches the AI classification result for a single anomaly record from the database.\n\n**Path param:** `:id` — UUID of the anomaly record\n\nSet the `anomaly_id` collection variable to one of the seeded UUIDs:\n- `aaaaaaaa-0000-0000-0000-000000000001` (PDS NO_SPIKE CRITICAL — Villupuram)\n- `aaaaaaaa-0000-0000-0000-000000000002` (OLD_AGE_PENSION SILENCE — Chengalpattu)\n- `aaaaaaaa-0000-0000-0000-000000000003` (PM_KISAN DISTRICT_ROLLUP — Villupuram)"
+          },
+          "response": [
+            {
+              "name": "200 Found",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": \"aaaaaaaa-0000-0000-0000-000000000001\",\n    \"date\": \"2024-11-19\",\n    \"detector_type\": \"NO_SPIKE\",\n    \"scheme_id\": \"PDS\",\n    \"severity\": \"CRITICAL\",\n    \"ai_classification\": \"SUPPLY_FAILURE\",\n    \"ai_confidence\": \"0.910\",\n    \"ai_reasoning\": \"NO% spiked to 78% vs 7-day baseline of 31% — z-score 4.2 indicates a non-random event.\",\n    \"ai_action\": \"Conduct immediate field visit to FPS store at 605001.\",\n    \"ai_action_ta\": \"605001 இல் உள்ள FPS கடைக்கு உடனடி கள வருகை மேற்கொள்ளவும்.\",\n    \"ai_urgency\": \"TODAY\",\n    \"ai_processed_at\": \"2024-11-19T08:59:50.000Z\",\n    \"status\": \"ASSIGNED\"\n  }\n}"
+            },
+            {
+              "name": "404 Not Found",
+              "status": "Not Found",
+              "code": 404,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"error\": \"Anomaly not found\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get AI Processing Stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-Engine-Secret", "value": "{{engine_secret}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/anomaly/stats",
+              "host": ["{{base_url}}"],
+              "path": ["api", "anomaly", "stats"]
+            },
+            "description": "Returns a 7-day summary of anomaly classification counts broken down by type, plus OpenAI API usage and cost metrics.\n\nUseful for dashboard monitoring and cost tracking."
+          },
+          "response": [
+            {
+              "name": "200 Stats",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"window\": \"last_7_days\",\n  \"anomalies\": {\n    \"total_anomalies\": \"3\",\n    \"classified\": \"3\",\n    \"pending\": \"0\",\n    \"supply_failure\": \"2\",\n    \"demand_collapse\": \"0\",\n    \"fraud_pattern\": \"0\",\n    \"data_artifact\": \"1\",\n    \"avg_confidence\": \"0.767\"\n  },\n  \"openai_usage\": {\n    \"total_cost_usd\": \"0.000709\",\n    \"total_tokens\": \"3025\",\n    \"total_calls\": \"3\",\n    \"successful_calls\": \"3\",\n    \"avg_latency_ms\": \"1866\"\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Error Cases",
+      "item": [
+        {
+          "name": "401 — Missing Auth Header",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/anomaly/classify",
+              "host": ["{{base_url}}"],
+              "path": ["api", "anomaly", "classify"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"id\": \"test\"}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Expected: `401 Unauthorized` — X-Engine-Secret header is missing."
+          },
+          "response": [
+            {
+              "name": "401 Unauthorized",
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"error\": \"Missing X-Engine-Secret header\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "403 — Wrong Secret",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type",    "value": "application/json" },
+              { "key": "X-Engine-Secret", "value": "wrong-secret-value" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/anomaly/classify",
+              "host": ["{{base_url}}"],
+              "path": ["api", "anomaly", "classify"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"id\": \"test\"}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Expected: `403 Forbidden` — X-Engine-Secret value doesn't match ENGINE_SECRET env var."
+          },
+          "response": [
+            {
+              "name": "403 Forbidden",
+              "status": "Forbidden",
+              "code": 403,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"error\": \"Invalid engine secret\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "400 — Invalid Payload",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type",    "value": "application/json" },
+              { "key": "X-Engine-Secret", "value": "{{engine_secret}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/anomaly/classify",
+              "host": ["{{base_url}}"],
+              "path": ["api", "anomaly", "classify"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"test-bad-payload\",\n  \"scheme_id\": \"INVALID_SCHEME\",\n  \"detector_type\": \"NO_SPIKE\",\n  \"no_pct\": 1.5\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Expected: `400 Bad Request` — multiple validation errors:\n- `date` missing\n- `level` missing\n- `severity` missing\n- `district` missing\n- `scheme_id` invalid value\n- `no_pct` out of range (must be 0.0–1.0)"
+          },
+          "response": [
+            {
+              "name": "400 Validation Error",
+              "status": "Bad Request",
+              "code": 400,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"error\": \"Validation failed\",\n  \"details\": [\n    \"date is required in YYYY-MM-DD format\",\n    \"level must be one of: PINCODE, BLOCK, DISTRICT\",\n    \"severity must be one of: CRITICAL, HIGH, MEDIUM, LOW\",\n    \"scheme_id must be one of: PDS, PM_KISAN, OLD_AGE_PENSION, LPG\",\n    \"district is required\",\n    \"no_pct must be a decimal between 0.0 and 1.0\"\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "400 — Batch Too Large",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type",    "value": "application/json" },
+              { "key": "X-Engine-Secret", "value": "{{engine_secret}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/anomaly/classify/batch",
+              "host": ["{{base_url}}"],
+              "path": ["api", "anomaly", "classify", "batch"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"anomalies\": [\n    {\"id\":\"1\",\"date\":\"2026-03-07\",\"detector_type\":\"NO_SPIKE\",\"level\":\"PINCODE\",\"pincode\":\"605001\",\"block\":\"Vikravandi\",\"district\":\"Villupuram\",\"scheme_id\":\"PDS\",\"severity\":\"HIGH\"},\n    {\"id\":\"2\",\"date\":\"2026-03-07\",\"detector_type\":\"NO_SPIKE\",\"level\":\"PINCODE\",\"pincode\":\"605001\",\"block\":\"Vikravandi\",\"district\":\"Villupuram\",\"scheme_id\":\"PDS\",\"severity\":\"HIGH\"},\n    {\"id\":\"3\",\"date\":\"2026-03-07\",\"detector_type\":\"NO_SPIKE\",\"level\":\"PINCODE\",\"pincode\":\"605001\",\"block\":\"Vikravandi\",\"district\":\"Villupuram\",\"scheme_id\":\"PDS\",\"severity\":\"HIGH\"},\n    {\"id\":\"4\",\"date\":\"2026-03-07\",\"detector_type\":\"NO_SPIKE\",\"level\":\"PINCODE\",\"pincode\":\"605001\",\"block\":\"Vikravandi\",\"district\":\"Villupuram\",\"scheme_id\":\"PDS\",\"severity\":\"HIGH\"},\n    {\"id\":\"5\",\"date\":\"2026-03-07\",\"detector_type\":\"NO_SPIKE\",\"level\":\"PINCODE\",\"pincode\":\"605001\",\"block\":\"Vikravandi\",\"district\":\"Villupuram\",\"scheme_id\":\"PDS\",\"severity\":\"HIGH\"},\n    {\"id\":\"6\",\"date\":\"2026-03-07\",\"detector_type\":\"NO_SPIKE\",\"level\":\"PINCODE\",\"pincode\":\"605001\",\"block\":\"Vikravandi\",\"district\":\"Villupuram\",\"scheme_id\":\"PDS\",\"severity\":\"HIGH\"}\n  ]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Expected: `400 Bad Request` — 6 items sent but BATCH_SIZE is 5."
+          },
+          "response": [
+            {
+              "name": "400 Batch Too Large",
+              "status": "Bad Request",
+              "code": 400,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"error\": \"Batch size exceeds maximum of 5. Got 6.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "404 — Anomaly Not Found",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-Engine-Secret", "value": "{{engine_secret}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/anomaly/00000000-0000-0000-0000-000000000000/result",
+              "host": ["{{base_url}}"],
+              "path": ["api", "anomaly", "00000000-0000-0000-0000-000000000000", "result"]
+            },
+            "description": "Expected: `404 Not Found` — no anomaly record with this UUID."
+          },
+          "response": [
+            {
+              "name": "404 Not Found",
+              "status": "Not Found",
+              "code": 404,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"error\": \"Anomaly not found\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "404 — Unknown Route",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/does-not-exist",
+              "host": ["{{base_url}}"],
+              "path": ["api", "does-not-exist"]
+            },
+            "description": "Expected: `404 Not Found` — route does not exist."
+          },
+          "response": [
+            {
+              "name": "404 Route Not Found",
+              "status": "Not Found",
+              "code": 404,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"error\": \"Route not found: GET /api/does-not-exist\"\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      { "key": "key",   "value": "X-Engine-Secret",  "type": "string" },
+      { "key": "value", "value": "{{engine_secret}}", "type": "string" },
+      { "key": "in",    "value": "header",            "type": "string" }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Auto-assert all responses are valid JSON",
+          "pm.test('Response is JSON', function () {",
+          "    pm.response.to.be.json;",
+          "});",
+          "",
+          "// Log response time for every request",
+          "console.log(pm.info.requestName, '→', pm.response.responseTime + 'ms', '|', pm.response.status);"
+        ]
+      }
+    }
+  ]
+}
