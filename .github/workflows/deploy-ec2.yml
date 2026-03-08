@@ -11,7 +11,6 @@ on:
         default: "all"
 
 env:
-  APP_DIR: /home/ec2-user/app
   BRANCH: main
 
 jobs:
@@ -62,7 +61,7 @@ jobs:
             warn()  { echo "[WARN]  $1"; }
             error() { echo "[ERROR] $1"; }
 
-            APP_DIR="${{ env.APP_DIR }}"
+            APP_DIR="$HOME/app"
             BRANCH="${{ env.BRANCH }}"
             DEPLOY_ALL="${{ steps.services.outputs.deploy_all }}"
             SERVICES="${{ steps.services.outputs.services }}"
