@@ -162,8 +162,9 @@ jobs:
             NGINX_CONF_DIR="/etc/nginx/conf.d"
             sudo mkdir -p "$NGINX_CONF_DIR"
 
-            # Remove old anveshak Nginx configs
+            # Remove old anveshak Nginx configs and disable default site
             sudo rm -f "$NGINX_CONF_DIR"/anveshak-*.conf
+            sudo rm -f /etc/nginx/sites-enabled/default
 
             # Copy the single consolidated config
             if [ -d "/tmp/anveshak-nginx/nginx" ]; then
