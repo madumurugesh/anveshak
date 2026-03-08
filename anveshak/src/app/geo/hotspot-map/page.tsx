@@ -22,7 +22,9 @@ export const SCHEME_META: Record<string, { label: string; color: string }> = {
 
 // ── Severity helpers (exported so LeafletMap can import) ─────
 export function getSeverity(cell: AnalyticsHeatmapCell): 'critical' | 'high' | 'normal' {
-  const pct = parseFloat(cell.avg_no_pct) || 0
+  const raw = parseFloat(cell.avg_no_pct) || 0
+  // avg_no_pct is stored as a fraction (0.0–1.0); convert to percentage
+  const pct = raw <= 1 ? raw * 100 : raw
   if (pct > 30) return 'critical'
   if (pct > 15) return 'high'
   return 'normal'
