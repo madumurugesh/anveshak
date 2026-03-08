@@ -66,8 +66,6 @@ jobs:
             BRANCH="${{ env.BRANCH }}"
             DEPLOY_ALL="${{ steps.services.outputs.deploy_all }}"
             SERVICES="${{ steps.services.outputs.services }}"
-            DOMAIN="${{ secrets.DOMAIN }}"
-
             should_deploy() {
               local svc="$1"
               if [ "$DEPLOY_ALL" = "true" ]; then return 0; fi
@@ -167,18 +165,15 @@ jobs:
             # Remove old anveshak Nginx configs
             sudo rm -f "$NGINX_CONF_DIR"/anveshak-*.conf
 
-            # Copy configs from repo (uploaded via SCP step)
+            # Copy the single consolidated config
             if [ -d "/tmp/anveshak-nginx/nginx" ]; then
-              sudo cp /tmp/anveshak-nginx/nginx/anveshak-*.conf "$NGINX_CONF_DIR/"
+              sudo cp /tmp/anveshak-nginx/nginx/anveshak-frontend.conf "$NGINX_CONF_DIR/"
             elif [ -d "$APP_DIR/nginx" ]; then
-              sudo cp "$APP_DIR/nginx/anveshak-*.conf" "$NGINX_CONF_DIR/"
+              sudo cp "$APP_DIR/nginx/anveshak-frontend.conf" "$NGINX_CONF_DIR/"
             else
               error "Nginx config files not found"
               exit 1
             fi
-
-            # Replace __DOMAIN__ placeholder with actual domain
-            sudo sed -i "s/__DOMAIN__/$DOMAIN/g" "$NGINX_CONF_DIR"/anveshak-*.conf
 
             # Test and reload Nginx
             sudo nginx -t
