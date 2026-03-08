@@ -1,4 +1,4 @@
-# WelfareWatch — AI Anomaly Engine
+# WelfareWatch - AI Anomaly Engine
 
 Express.js service that classifies welfare anomalies using OpenAI
 and writes results back to the `anomaly_records` PostgreSQL table.
@@ -49,6 +49,7 @@ npm start
 ## API Endpoints
 
 All endpoints require the header:
+
 ```
 x-engine-secret: <ENGINE_SECRET from .env>
 ```
@@ -56,9 +57,11 @@ x-engine-secret: <ENGINE_SECRET from .env>
 ---
 
 ### POST /api/anomaly/classify
+
 Classify a single anomaly record.
 
 **Request body:**
+
 ```json
 {
   "id": "uuid-of-anomaly-record",
@@ -81,6 +84,7 @@ Classify a single anomaly record.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -107,9 +111,11 @@ Classify a single anomaly record.
 ---
 
 ### POST /api/anomaly/classify/batch
+
 Classify up to BATCH_SIZE (default 5) anomaly records.
 
 **Request body:**
+
 ```json
 {
   "anomalies": [ { ...anomaly1 }, { ...anomaly2 } ]
@@ -117,6 +123,7 @@ Classify up to BATCH_SIZE (default 5) anomaly records.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -128,13 +135,16 @@ Classify up to BATCH_SIZE (default 5) anomaly records.
 ---
 
 ### POST /api/anomaly/classify/pending
+
 Pull unclassified anomalies from DB and process them.
 Ordered by severity (CRITICAL first).
 
 **Query params:**
-- `limit` — max records to process (default: BATCH_SIZE)
+
+- `limit` - max records to process (default: BATCH_SIZE)
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -146,17 +156,20 @@ Ordered by severity (CRITICAL first).
 ---
 
 ### GET /api/anomaly/:id/result
+
 Fetch AI classification for a specific anomaly.
 
 ---
 
 ### GET /api/anomaly/stats
-7-day aggregated stats — classification counts + OpenAI cost summary.
+
+7-day aggregated stats - classification counts + OpenAI cost summary.
 
 ---
 
 ### GET /health
-Health check — no auth required. Returns DB and OpenAI config status.
+
+Health check - no auth required. Returns DB and OpenAI config status.
 
 ---
 
@@ -183,21 +196,21 @@ to batch-process all anomalies that were created before the AI layer ran.
 
 ## Environment Variables
 
-| Variable               | Description                          | Default        |
-|------------------------|--------------------------------------|----------------|
-| OPENAI_API_KEY         | OpenAI secret key                    | required       |
-| OPENAI_MODEL           | Model to use                         | gpt-4o-mini    |
-| OPENAI_MAX_TOKENS      | Max completion tokens                | 600            |
-| OPENAI_TEMPERATURE     | Sampling temperature                 | 0.2            |
-| OPENAI_TIMEOUT_MS      | API call timeout                     | 15000          |
-| DB_HOST                | RDS endpoint                         | required       |
-| DB_PORT                | PostgreSQL port                      | 5432           |
-| DB_NAME                | Database name                        | required       |
-| DB_USER                | DB username                          | required       |
-| DB_PASSWORD            | DB password                          | required       |
-| DB_SSL                 | Use SSL for DB connection            | true           |
-| PORT                   | Express server port                  | 3000           |
-| ENGINE_SECRET          | Internal auth header value           | required       |
-| BATCH_SIZE             | Max batch size                       | 5              |
-| RATE_LIMIT_WINDOW_MS   | Rate limit window                    | 60000          |
-| RATE_LIMIT_MAX         | Max requests per window              | 60             |
+| Variable             | Description                | Default     |
+| -------------------- | -------------------------- | ----------- |
+| OPENAI_API_KEY       | OpenAI secret key          | required    |
+| OPENAI_MODEL         | Model to use               | gpt-4o-mini |
+| OPENAI_MAX_TOKENS    | Max completion tokens      | 600         |
+| OPENAI_TEMPERATURE   | Sampling temperature       | 0.2         |
+| OPENAI_TIMEOUT_MS    | API call timeout           | 15000       |
+| DB_HOST              | RDS endpoint               | required    |
+| DB_PORT              | PostgreSQL port            | 5432        |
+| DB_NAME              | Database name              | required    |
+| DB_USER              | DB username                | required    |
+| DB_PASSWORD          | DB password                | required    |
+| DB_SSL               | Use SSL for DB connection  | true        |
+| PORT                 | Express server port        | 3000        |
+| ENGINE_SECRET        | Internal auth header value | required    |
+| BATCH_SIZE           | Max batch size             | 5           |
+| RATE_LIMIT_WINDOW_MS | Rate limit window          | 60000       |
+| RATE_LIMIT_MAX       | Max requests per window    | 60          |

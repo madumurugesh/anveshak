@@ -219,7 +219,7 @@ async def notify_anomaly_engine():
     """Call the AI anomaly engine to classify pending records (if configured)."""
     s = get_settings()
     if not s.anomaly_engine_url:
-        logger.debug("anomaly_engine_url not set — skipping AI classification trigger.")
+        logger.debug("anomaly_engine_url not set - skipping AI classification trigger.")
         return
 
     url = f"{s.anomaly_engine_url}/api/anomaly/classify/pending"
@@ -252,7 +252,7 @@ async def run_detectors():
             today_str,
         )
         if not rows:
-            logger.info("No daily_responses for %s — skipping detection.", today_str)
+            logger.info("No daily_responses for %s - skipping detection.", today_str)
             return
 
         today_rows = [dict(r) for r in rows]

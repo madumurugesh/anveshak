@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     # Lambda
     lambda_detector: str = "anveshak-anomaly-detector"
 
-    # Processing window (seconds) — default 1 hour
+    # Processing window (seconds) - default 1 hour
     window_seconds: int = 3600
 
     # Anomaly Engine (triggers AI classification after detection)

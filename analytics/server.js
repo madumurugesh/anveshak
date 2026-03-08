@@ -71,7 +71,7 @@ app.use(
     max:      parseInt(process.env.RATE_LIMIT_MAX || "120"),
     standardHeaders: true,
     legacyHeaders:   false,
-    message: { success: false, error: "Too many requests — slow down" },
+    message: { success: false, error: "Too many requests - slow down" },
   })
 );
 
@@ -143,7 +143,7 @@ const server = app.listen(PORT, async () => {
 });
 
 function shutdown(signal) {
-  logger.info(`${signal} received — shutting down gracefully`);
+  logger.info(`${signal} received - shutting down gracefully`);
   server.close(async () => {
     try {
       await pool.end();

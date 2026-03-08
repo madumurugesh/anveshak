@@ -294,7 +294,7 @@ export default function HotspotMapPage() {
           <div className="map-panel">
             <div className="map-head">
               <div style={{ display: 'flex', alignItems: 'center' }}>
-                <span className="map-title">India — District Anomaly Hotspots</span>
+                <span className="map-title">India - District Anomaly Hotspots</span>
                 {!loading && <span className="map-pts">{filtered.length} hotspots</span>}
               </div>
               <div className="map-legend">
@@ -369,7 +369,7 @@ export default function HotspotMapPage() {
                   </div>
                 ) : filtered.length === 0 ? (
                   <div className="empty-msg">
-                    {error ? 'No data — check API connection' : 'No hotspots match the current filters'}
+                    {error ? 'No data - check API connection' : 'No hotspots match the current filters'}
                   </div>
                 ) : (
                   [...filtered]

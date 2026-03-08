@@ -22,7 +22,7 @@ from uuid import uuid4
 
 import os
 
-# ── DB connection (AWS RDS — override with env vars) ───────────
+# ── DB connection (AWS RDS - override with env vars) ───────────
 # Set DB_HOST / DB_PASSWORD env vars to point at your RDS instance.
 # Falls back to Supabase pooler if RDS env vars are not set.
 DB_CONFIG = dict(
@@ -50,7 +50,7 @@ def divider(title):
 
 
 # ================================================================
-# STEP 1 — Deploy Schema & Verify Seed Data
+# STEP 1 - Deploy Schema & Verify Seed Data
 # ================================================================
 def step1_deploy_schema(conn):
     divider("STEP 1: Deploy Schema & Verify Seed Data")
@@ -89,7 +89,7 @@ def step1_deploy_schema(conn):
         ("district_baselines", "baselines"),
         ("officers", "officers"),
     ]:
-        cur.execute(f"SELECT COUNT(*) FROM {tbl}")   # noqa: S608 — table names are hardcoded
+        cur.execute(f"SELECT COUNT(*) FROM {tbl}")   # noqa: S608 - table names are hardcoded
         log("SEED", f"  {label}: {cur.fetchone()[0]} rows")
 
     # Verify new columns
@@ -109,7 +109,7 @@ def step1_deploy_schema(conn):
 
 
 # ================================================================
-# STEP 2 — Simulate Ingestion Layer
+# STEP 2 - Simulate Ingestion Layer
 # ================================================================
 def step2_simulate_ingestion(conn):
     divider("STEP 2: Simulate Ingestion Layer (IVR -> Beneficiary Lookup -> Kinesis)")
@@ -167,7 +167,7 @@ def step2_simulate_ingestion(conn):
 
 
 # ================================================================
-# STEP 3 — Simulate Stream Processing
+# STEP 3 - Simulate Stream Processing
 # ================================================================
 def step3_simulate_stream_processing(conn, kinesis_payloads):
     divider("STEP 3: Stream Processing (Aggregate -> Flush to daily_responses)")
@@ -250,7 +250,7 @@ def step3_simulate_stream_processing(conn, kinesis_payloads):
 
 
 # ================================================================
-# STEP 4 — Anomaly Detection
+# STEP 4 - Anomaly Detection
 # ================================================================
 def step4_run_detectors(conn):
     divider("STEP 4: Anomaly Detectors (NO_SPIKE, SILENCE, DISTRICT_ROLLUP)")
@@ -378,7 +378,7 @@ def step4_run_detectors(conn):
 
 
 # ================================================================
-# STEP 5 — Simulate AI Anomaly Engine Classification
+# STEP 5 - Simulate AI Anomaly Engine Classification
 # ================================================================
 def step5_simulate_ai_engine(conn):
     divider("STEP 5: AI Anomaly Engine (Simulate OpenAI Classification)")
@@ -547,7 +547,7 @@ def step5_simulate_ai_engine(conn):
 
 
 # ================================================================
-# STEP 6 — Simulate Officer Assignment & Alert Actions
+# STEP 6 - Simulate Officer Assignment & Alert Actions
 # ================================================================
 def step6_simulate_officer_workflow(conn):
     divider("STEP 6: Officer Assignment & Alert Actions")
@@ -653,7 +653,7 @@ def step6_simulate_officer_workflow(conn):
 
 
 # ================================================================
-# STEP 7 — Simulate Daily Report & Notifications
+# STEP 7 - Simulate Daily Report & Notifications
 # ================================================================
 def step7_simulate_reports(conn):
     divider("STEP 7: Daily Reports & Notifications")
@@ -725,7 +725,7 @@ def step7_simulate_reports(conn):
 
 
 # ================================================================
-# STEP 8 — Verify ALL Analytics Queries
+# STEP 8 - Verify ALL Analytics Queries
 # ================================================================
 def step8_verify_analytics(conn):
     divider("STEP 8: Verify Analytics Layer (All SQL Query Patterns)")
@@ -1073,7 +1073,7 @@ def step8_verify_analytics(conn):
 
 
 # ================================================================
-# STEP 9 — Frontend Integration Verification
+# STEP 9 - Frontend Integration Verification
 # ================================================================
 def step9_verify_frontend_integration(conn):
     divider("STEP 9: Frontend Integration Verification")
@@ -1384,7 +1384,7 @@ def step9_verify_frontend_integration(conn):
 
 
 # ================================================================
-# STEP 9 — Generate Complete Flow Report
+# STEP 9 - Generate Complete Flow Report
 # ================================================================
 def step10_generate_report(conn):
     divider("STEP 10: COMPLETE END-TO-END FLOW REPORT")

@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { signOut } from '@/lib/auth'
@@ -16,6 +17,8 @@ export default function Navbar() {
   const router = useRouter()
   const pathname = usePathname()
 
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
+
   const handleLogout = async () => {
     try {
       await signOut()
@@ -23,6 +26,7 @@ export default function Navbar() {
       // continue logout even if Amplify fails
     }
     Cookies.remove('accessToken')
+    Cookies.remove('userEmail')
     router.push('/login')
   }
 
@@ -118,14 +122,9 @@ export default function Navbar() {
 
       <nav className="top-bar">
         <Link href="/dashboard" className="top-bar-brand">
-          <div className="brand-icon">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
-              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-              <polyline points="9 22 9 12 15 12 15 22" />
-            </svg>
-          </div>
+          <img src="/logo.png" alt="Anveshak" width={28} height={28} style={{ borderRadius: 6 }} />
           <div>
-            <div className="brand-name">WelfareWatch</div>
+            <div className="brand-name">Anveshak</div>
             <div className="brand-sub">Government Monitoring Platform</div>
           </div>
         </Link>
@@ -147,11 +146,42 @@ export default function Navbar() {
             })}
           </div>
           <div style={{ width: 1, height: 18, background: 'var(--green-700)', margin: '0 4px' }} />
-          <button className="nav-avatar" onClick={handleLogout} title="Sign out">
+          <button className="nav-avatar" onClick={() => setShowLogoutConfirm(true)} title="Sign out">
             {initials}
           </button>
         </div>
       </nav>
+
+      {/* Logout confirmation overlay */}
+      {showLogoutConfirm && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 9999,
+          background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }} onClick={() => setShowLogoutConfirm(false)}>
+          <div style={{
+            background: '#fff', borderRadius: 12, padding: '24px 28px',
+            boxShadow: '0 8px 30px rgba(0,0,0,0.18)', maxWidth: 340, width: '90%',
+            textAlign: 'center',
+          }} onClick={e => e.stopPropagation()}>
+            <div style={{ width: 44, height: 44, borderRadius: 10, background: '#FEF2F2', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#DC2626" strokeWidth="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            </div>
+            <h3 style={{ fontSize: 16, fontWeight: 700, color: '#111827', marginBottom: 6 }}>Sign Out?</h3>
+            <p style={{ fontSize: 13, color: '#6B7280', marginBottom: 20, lineHeight: 1.5 }}>Are you sure you want to log out of Anveshak?</p>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button
+                onClick={() => setShowLogoutConfirm(false)}
+                style={{ flex: 1, padding: '9px 0', borderRadius: 8, border: '1px solid #D1D5DB', background: '#fff', fontSize: 13, fontWeight: 600, color: '#374151', cursor: 'pointer', fontFamily: 'inherit' }}
+              >Cancel</button>
+              <button
+                onClick={handleLogout}
+                style={{ flex: 1, padding: '9px 0', borderRadius: 8, border: 'none', background: '#DC2626', fontSize: 13, fontWeight: 600, color: '#fff', cursor: 'pointer', fontFamily: 'inherit' }}
+              >Sign Out</button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }

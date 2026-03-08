@@ -152,7 +152,7 @@ async function writePromptLog(anomalyId, meta) {
       ]
     );
   } catch (dbErr) {
-    // Log but don't throw — prompt logging is non-critical
+    // Log but don't throw - prompt logging is non-critical
     logger.warn("Failed to write prompt log", { anomaly_id: anomalyId, error: dbErr.message });
   }
 }
@@ -239,7 +239,7 @@ async function classifyAnomaly(anomaly) {
       anomaly_id: anomaly.id,
       error: dbErr.message,
     });
-    // Non-fatal — continue with classification; updateAnomalyRecord will also handle it
+    // Non-fatal - continue with classification; updateAnomalyRecord will also handle it
   }
 
   const { result, meta } = await callOpenAI(anomaly);

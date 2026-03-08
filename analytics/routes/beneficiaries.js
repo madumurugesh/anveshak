@@ -59,7 +59,7 @@ router.get(
 
 // ─────────────────────────────────────────────────────────────
 // GET /api/analytics/beneficiaries/distribution
-// Demographics breakdown — age ranges, gender, scheme enrollment
+// Demographics breakdown - age ranges, gender, scheme enrollment
 // ─────────────────────────────────────────────────────────────
 router.get(
   "/distribution",

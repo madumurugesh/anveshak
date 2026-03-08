@@ -272,7 +272,7 @@ export default function LeafletMap({ cells, selected, onSelect, schemeMap }: Pro
         attributionControl: true,
       })
 
-      // CartoDB Positron — clean, minimal, light tile layer
+      // CartoDB Positron - clean, minimal, light tile layer
       L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
         subdomains: 'abcd',
@@ -307,7 +307,7 @@ export default function LeafletMap({ cells, selected, onSelect, schemeMap }: Pro
 
       cells.forEach(cell => {
         const coords = resolveLatLng(cell.district)
-        if (!coords) return  // skip if no coordinates found — real data only
+        if (!coords) return  // skip if no coordinates found - real data only
 
         const color    = severityColor(cell)
         const radius   = dotRadius(cell)

@@ -1,5 +1,5 @@
 -- =============================================================
--- Anveshak — Database Setup Script
+-- Anveshak - Database Setup Script
 -- Run on your RDS PostgreSQL instance ONCE before deploying.
 -- WARNING: This drops and recreates all tables. Back up first.
 -- =============================================================
