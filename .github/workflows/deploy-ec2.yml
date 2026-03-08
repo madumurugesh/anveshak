@@ -109,63 +109,63 @@ jobs:
             info "Writing environment files..."
 
             cat > "$APP_DIR/anveshak/.env" <<EOF
-NEXT_PUBLIC_ANALYTICS_API_URL=http://${EC2_PUBLIC_IP}/api/analytics
-NEXT_PUBLIC_ANOMALY_API_URL=http://${EC2_PUBLIC_IP}/api/anomaly
-NEXT_PUBLIC_ENGINE_SECRET=${ENGINE_SECRET}
-NEXT_PUBLIC_COGNITO_USER_POOL_ID=${COGNITO_USER_POOL_ID}
-NEXT_PUBLIC_COGNITO_CLIENT_ID=${COGNITO_CLIENT_ID}
-NEXT_PUBLIC_ADMIN_EMAIL=${ADMIN_EMAIL}
-NEXT_PUBLIC_ADMIN_PASSWORD=${ADMIN_PASSWORD}
-NEXT_PUBLIC_USE_MOCK=false
-NEXT_PUBLIC_AWS_REGION=${AWS_REGION}
-EOF
+            NEXT_PUBLIC_ANALYTICS_API_URL=http://${EC2_PUBLIC_IP}/api/analytics
+            NEXT_PUBLIC_ANOMALY_API_URL=http://${EC2_PUBLIC_IP}/api/anomaly
+            NEXT_PUBLIC_ENGINE_SECRET=${ENGINE_SECRET}
+            NEXT_PUBLIC_COGNITO_USER_POOL_ID=${COGNITO_USER_POOL_ID}
+            NEXT_PUBLIC_COGNITO_CLIENT_ID=${COGNITO_CLIENT_ID}
+            NEXT_PUBLIC_ADMIN_EMAIL=${ADMIN_EMAIL}
+            NEXT_PUBLIC_ADMIN_PASSWORD=${ADMIN_PASSWORD}
+            NEXT_PUBLIC_USE_MOCK=false
+            NEXT_PUBLIC_AWS_REGION=${AWS_REGION}
+            EOF
 
             cat > "$APP_DIR/analytics/.env" <<EOF
-DB_HOST=${DB_HOST}
-DB_PORT=${DB_PORT}
-DB_NAME=${DB_NAME}
-DB_USER=${DB_USER}
-DB_PASSWORD=${DB_PASSWORD}
-ENGINE_SECRET=${ENGINE_SECRET}
-COGNITO_USER_POOL_ID=${COGNITO_USER_POOL_ID}
-AWS_REGION=${AWS_REGION}
-CORS_ORIGINS=http://${EC2_PUBLIC_IP}
-NODE_ENV=production
-EOF
+            DB_HOST=${DB_HOST}
+            DB_PORT=${DB_PORT}
+            DB_NAME=${DB_NAME}
+            DB_USER=${DB_USER}
+            DB_PASSWORD=${DB_PASSWORD}
+            ENGINE_SECRET=${ENGINE_SECRET}
+            COGNITO_USER_POOL_ID=${COGNITO_USER_POOL_ID}
+            AWS_REGION=${AWS_REGION}
+            CORS_ORIGINS=http://${EC2_PUBLIC_IP}
+            NODE_ENV=production
+            EOF
 
             cat > "$APP_DIR/aiAnamolyDetection/.env" <<EOF
-DB_HOST=${DB_HOST}
-DB_PORT=${DB_PORT}
-DB_NAME=${DB_NAME}
-DB_USER=${DB_USER}
-DB_PASSWORD=${DB_PASSWORD}
-ENGINE_SECRET=${ENGINE_SECRET}
-OPENAI_API_KEY=${OPENAI_API_KEY}
-COGNITO_USER_POOL_ID=${COGNITO_USER_POOL_ID}
-AWS_REGION=${AWS_REGION}
-CORS_ORIGINS=http://${EC2_PUBLIC_IP}
-NODE_ENV=production
-EOF
+            DB_HOST=${DB_HOST}
+            DB_PORT=${DB_PORT}
+            DB_NAME=${DB_NAME}
+            DB_USER=${DB_USER}
+            DB_PASSWORD=${DB_PASSWORD}
+            ENGINE_SECRET=${ENGINE_SECRET}
+            OPENAI_API_KEY=${OPENAI_API_KEY}
+            COGNITO_USER_POOL_ID=${COGNITO_USER_POOL_ID}
+            AWS_REGION=${AWS_REGION}
+            CORS_ORIGINS=http://${EC2_PUBLIC_IP}
+            NODE_ENV=production
+            EOF
 
             cat > "$APP_DIR/ingestion-service/.env" <<EOF
-PG_HOST=${DB_HOST}
-PG_PORT=${DB_PORT}
-PG_DATABASE=${DB_NAME}
-PG_USER=${DB_USER}
-PG_PASSWORD=${DB_PASSWORD}
-AWS_REGION=${AWS_REGION}
-EOF
+            PG_HOST=${DB_HOST}
+            PG_PORT=${DB_PORT}
+            PG_DATABASE=${DB_NAME}
+            PG_USER=${DB_USER}
+            PG_PASSWORD=${DB_PASSWORD}
+            AWS_REGION=${AWS_REGION}
+            EOF
 
             cat > "$APP_DIR/stream-processing-service/.env" <<EOF
-PG_HOST=${DB_HOST}
-PG_PORT=${DB_PORT}
-PG_DATABASE=${DB_NAME}
-PG_USER=${DB_USER}
-PG_PASSWORD=${DB_PASSWORD}
-AWS_REGION=${AWS_REGION}
-ENGINE_SECRET=${ENGINE_SECRET}
-ANOMALY_ENGINE_URL=http://127.0.0.1:3002
-EOF
+            PG_HOST=${DB_HOST}
+            PG_PORT=${DB_PORT}
+            PG_DATABASE=${DB_NAME}
+            PG_USER=${DB_USER}
+            PG_PASSWORD=${DB_PASSWORD}
+            AWS_REGION=${AWS_REGION}
+            ENGINE_SECRET=${ENGINE_SECRET}
+            ANOMALY_ENGINE_URL=http://127.0.0.1:3002
+            EOF
 
             info "Environment files written"
 
