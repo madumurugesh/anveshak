@@ -1,0 +1,209 @@
+name: Deploy to EC2 via SSH
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      services:
+        description: "Comma-separated services to deploy (all,frontend,analytics,anomaly,ingestion,stream)"
+        required: false
+        default: "all"
+
+env:
+  APP_DIR: /home/ec2-user/app
+  BRANCH: main
+
+jobs:
+  deploy:
+    name: Deploy to EC2
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Determine services to deploy
+        id: services
+        run: |
+          INPUT="${{ github.event.inputs.services || 'all' }}"
+          if [ "$INPUT" = "all" ]; then
+            echo "deploy_all=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "deploy_all=false" >> "$GITHUB_OUTPUT"
+            echo "services=$INPUT" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Copy Nginx configs to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          source: "nginx/*.conf"
+          target: "/tmp/anveshak-nginx"
+          strip_components: 0
+
+      - name: Deploy services and configure Nginx
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          command_timeout: 15m
+          script: |
+            set -e
+
+            # ── Helpers ──
+            info()  { echo "[INFO]  $1"; }
+            warn()  { echo "[WARN]  $1"; }
+            error() { echo "[ERROR] $1"; }
+
+            APP_DIR="${{ env.APP_DIR }}"
+            BRANCH="${{ env.BRANCH }}"
+            DEPLOY_ALL="${{ steps.services.outputs.deploy_all }}"
+            SERVICES="${{ steps.services.outputs.services }}"
+            DOMAIN="${{ secrets.DOMAIN }}"
+
+            should_deploy() {
+              local svc="$1"
+              if [ "$DEPLOY_ALL" = "true" ]; then return 0; fi
+              echo ",$SERVICES," | grep -q ",$svc,"
+            }
+
+            # ── 1. Clone or pull repo ──
+            info "Syncing repository..."
+            if [ -d "$APP_DIR/.git" ]; then
+              cd "$APP_DIR"
+              git fetch origin "$BRANCH"
+              git reset --hard "origin/$BRANCH"
+            else
+              git clone -b "$BRANCH" "${{ secrets.REPO_URL }}" "$APP_DIR"
+              cd "$APP_DIR"
+            fi
+
+            # ── 2. System check ──
+            command -v node  >/dev/null || { error "Node.js not installed"; exit 1; }
+            command -v pm2   >/dev/null || { error "PM2 not installed"; exit 1; }
+            command -v nginx >/dev/null || { error "Nginx not installed"; exit 1; }
+
+            info "Node $(node -v) | PM2 $(pm2 -v)"
+
+            # ── 3. Deploy Next.js Frontend (port 3000) ──
+            if should_deploy "frontend"; then
+              info "Deploying frontend (anveshak)..."
+              cd "$APP_DIR/anveshak"
+              npm ci
+              npm run build
+              pm2 delete anveshak-frontend 2>/dev/null || true
+              pm2 start npm --name anveshak-frontend -- start
+              info "Frontend deployed on port 3000"
+            fi
+
+            # ── 4. Deploy Analytics API (port 3001) ──
+            if should_deploy "analytics"; then
+              info "Deploying analytics..."
+              cd "$APP_DIR/analytics"
+              npm ci --omit=dev
+              pm2 delete analytics 2>/dev/null || true
+              pm2 start server.js --name analytics
+              info "Analytics deployed on port 3001"
+            fi
+
+            # ── 5. Deploy Anomaly Detection API (port 3002) ──
+            if should_deploy "anomaly"; then
+              info "Deploying anomaly detection..."
+              cd "$APP_DIR/aiAnamolyDetection"
+              npm ci --omit=dev
+              pm2 delete anomaly-detection 2>/dev/null || true
+              pm2 start server.js --name anomaly-detection
+              info "Anomaly detection deployed on port 3002"
+            fi
+
+            # ── 6. Deploy Ingestion Service (port 8000) ──
+            if should_deploy "ingestion"; then
+              info "Deploying ingestion service..."
+              cd "$APP_DIR/ingestion-service"
+              PYTHON_BIN=$(command -v python3.12 || command -v python3)
+              if [ ! -d "venv" ]; then
+                $PYTHON_BIN -m venv venv
+              fi
+              source venv/bin/activate
+              pip install -q -r requirements.txt
+              deactivate
+              pm2 delete ingestion-service 2>/dev/null || true
+              pm2 start "cd $APP_DIR/ingestion-service && source venv/bin/activate && uvicorn app.main:app --host 127.0.0.1 --port 8000" --name ingestion-service --interpreter bash
+              info "Ingestion service deployed on port 8000"
+            fi
+
+            # ── 7. Deploy Stream Processing (port 8001) ──
+            if should_deploy "stream"; then
+              info "Deploying stream processing..."
+              cd "$APP_DIR/stream-processing-service"
+              PYTHON_BIN=$(command -v python3.12 || command -v python3)
+              if [ ! -d "venv" ]; then
+                $PYTHON_BIN -m venv venv
+              fi
+              source venv/bin/activate
+              pip install -q -r requirements.txt
+              deactivate
+              pm2 delete stream-processing 2>/dev/null || true
+              pm2 start "cd $APP_DIR/stream-processing-service && source venv/bin/activate && uvicorn app.main:app --host 127.0.0.1 --port 8001" --name stream-processing --interpreter bash
+              info "Stream processing deployed on port 8001"
+            fi
+
+            # ── 8. Save PM2 process list for reboot persistence ──
+            pm2 save
+            info "PM2 process list saved"
+
+            # ── 9. Deploy Nginx vhost configs ──
+            info "Configuring Nginx virtual hosts..."
+            NGINX_CONF_DIR="/etc/nginx/conf.d"
+            sudo mkdir -p "$NGINX_CONF_DIR"
+
+            # Remove old anveshak Nginx configs
+            sudo rm -f "$NGINX_CONF_DIR"/anveshak-*.conf
+
+            # Copy configs from repo (uploaded via SCP step)
+            if [ -d "/tmp/anveshak-nginx/nginx" ]; then
+              sudo cp /tmp/anveshak-nginx/nginx/anveshak-*.conf "$NGINX_CONF_DIR/"
+            elif [ -d "$APP_DIR/nginx" ]; then
+              sudo cp "$APP_DIR/nginx/anveshak-*.conf" "$NGINX_CONF_DIR/"
+            else
+              error "Nginx config files not found"
+              exit 1
+            fi
+
+            # Replace __DOMAIN__ placeholder with actual domain
+            sudo sed -i "s/__DOMAIN__/$DOMAIN/g" "$NGINX_CONF_DIR"/anveshak-*.conf
+
+            # Test and reload Nginx
+            sudo nginx -t
+            sudo systemctl reload nginx
+            info "Nginx configured and reloaded"
+
+            # ── 10. Health checks ──
+            info "Running health checks..."
+            sleep 5
+            for endpoint in \
+              "http://127.0.0.1:3000" \
+              "http://127.0.0.1:3001/health" \
+              "http://127.0.0.1:3002/health" \
+              "http://127.0.0.1:8000/health" \
+              "http://127.0.0.1:8001/health"; do
+              STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 5 "$endpoint" 2>/dev/null || echo "000")
+              if [ "$STATUS" -ge 200 ] && [ "$STATUS" -lt 400 ]; then
+                info "$endpoint -> $STATUS OK"
+              else
+                warn "$endpoint -> $STATUS (may still be starting)"
+              fi
+            done
+
+            # Cleanup temp files
+            rm -rf /tmp/anveshak-nginx
+
+            info "Deployment complete!"
+            pm2 list
