@@ -213,7 +213,7 @@ export default function LeafletMap({ cells, selected, onSelect, schemeMap }: Pro
     const sev    = getSeverity(cell)
     const color  = severityColor(cell)
     const scheme = schemeMap[cell.scheme_id]?.label || cell.scheme_id
-    const pct    = parseFloat(cell.avg_no_pct).toFixed(1)
+    const pct    = (parseFloat(cell.avg_no_pct) * 100).toFixed(1)
     const score  = parseFloat(cell.avg_score || '0').toFixed(3)
     const sevBg  = sev === 'critical' ? '#FEF2F2' : sev === 'high' ? '#FFF7ED' : '#F0FAF3'
     const sevFg  = sev === 'critical' ? '#DC2626' : sev === 'high' ? '#C2410C' : '#166534'

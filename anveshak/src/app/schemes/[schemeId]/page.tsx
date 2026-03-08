@@ -99,7 +99,7 @@ export default function SchemeDetailPage() {
           responses: parseInt(t.total_responses) || 0,
           yesCount: parseInt(t.yes_count) || 0,
           noCount: parseInt(t.no_count) || 0,
-          noPct: parseFloat(t.avg_no_pct) || 0,
+          noPct: (parseFloat(t.avg_no_pct) || 0) * 100,
         }))
         setTrends(trendData)
       } catch (e) {
@@ -115,8 +115,8 @@ export default function SchemeDetailPage() {
   const totalResponses = parseInt(scheme?.total_responses || '0')
   const totalYes = parseInt(scheme?.total_yes || '0')
   const totalNo = parseInt(scheme?.total_no || '0')
-  const avgNoPct = parseFloat(scheme?.avg_no_pct || '0')
-  const avgRespRate = parseFloat(scheme?.avg_response_rate || '0')
+  const avgNoPct = parseFloat(scheme?.avg_no_pct || '0') * 100
+  const avgRespRate = parseFloat(scheme?.avg_response_rate || '0') * 100
   const totalBeneficiaries = parseInt(scheme?.total_beneficiaries || '0')
   const activeBeneficiaries = parseInt(scheme?.active_beneficiaries || '0')
   const anomalyCount = parseInt(scheme?.anomaly_count || '0')
@@ -283,7 +283,7 @@ export default function SchemeDetailPage() {
                   <span className="spk">districts</span>
                 </div>
                 <div className="stat-pill">
-                  <span className="spv">{scheme.reporting_pincodes}</span>
+                  <span className="spv">{scheme.reporting_pincodes ?? 0}</span>
                   <span className="spk">pincodes</span>
                 </div>
                 <div className="stat-pill">
@@ -494,8 +494,8 @@ export default function SchemeDetailPage() {
                 {[
                   { lbl: 'Total Beneficiaries', val: fmt(totalBeneficiaries) },
                   { lbl: 'Active Beneficiaries', val: fmt(activeBeneficiaries) },
-                  { lbl: 'Reporting Districts', val: scheme.reporting_districts },
-                  { lbl: 'Reporting Pincodes', val: scheme.reporting_pincodes },
+                  { lbl: 'Reporting Districts', val: scheme.reporting_districts ?? '0' },
+                  { lbl: 'Reporting Pincodes', val: scheme.reporting_pincodes ?? '0' },
                   { lbl: 'Avg Response Rate', val: `${avgRespRate.toFixed(1)}%` },
                   { lbl: 'Avg Failure Rate', val: `${avgNoPct.toFixed(1)}%` },
                   { lbl: 'Critical Anomalies', val: criticalAnomalies.toString() },
