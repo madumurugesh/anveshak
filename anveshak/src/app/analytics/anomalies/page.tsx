@@ -22,7 +22,7 @@ export default function AnomaliesPage() {
     let alive = true
     setLoading(true)
     setError(null)
-    analytics.anomalies.list({ days, limit: 200 })
+    analytics.anomalies.list({ days, limit: 100 })
       .then(res => { if (alive) setAnomalies(adaptAnomalyRecords(res.data ?? [])) })
       .catch(e  => { if (alive) setError(e instanceof Error ? e.message : 'Failed to load anomalies') })
       .finally(() => { if (alive) setLoading(false) })
@@ -49,7 +49,7 @@ export default function AnomaliesPage() {
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
 
         .an * { box-sizing: border-box; margin: 0; padding: 0; }
-        .an   { font-family: 'DM Sans', sans-serif; display: flex; flex-direction: column; gap: 10px; }
+        .an   { font-family: 'DM Sans', sans-serif; display: flex; flex-direction: column; gap: 10px; flex: 1; min-height: 0; }
 
         /* ── toolbar ── */
         .an-bar {
@@ -98,7 +98,11 @@ export default function AnomaliesPage() {
 
         /* ── anomaly table ── */
         .an-table-wrap {
-          background: #fff; border: 1px solid #E5EDE8; border-radius: 10px; overflow: hidden;
+          background: #fff; border: 1px solid #E5EDE8; border-radius: 10px;
+          flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden;
+        }
+        .an-table-scroll {
+          flex: 1; min-height: 0; overflow: auto;
         }
         .an-table-head {
           padding: 9px 14px; border-bottom: 1px solid #F0F4F1; background: #FAFCFA;
@@ -107,19 +111,19 @@ export default function AnomaliesPage() {
         .an-table-title { font-size: 11px; font-weight: 600; color: #111827; }
         .an-table-sub   { font-size: 10px; color: #9CA3AF; font-family: 'DM Mono', monospace; }
 
-        table { width: 100%; border-collapse: collapse; }
+        table { width: 100%; min-width: 920px; border-collapse: collapse; }
         thead tr th {
-          padding: 7px 14px; text-align: left; font-size: 9.5px; font-weight: 700;
+          padding: 10px 14px; text-align: left; font-size: 9.5px; font-weight: 700;
           color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.06em;
           background: #FAFCFA; border-bottom: 1px solid #F0F4F1;
         }
         tbody tr { border-bottom: 1px solid #F5F7F5; transition: background 0.1s; }
         tbody tr:last-child { border-bottom: none; }
         tbody tr:hover { background: #F9FAF9; }
-        tbody tr td { padding: 8px 14px; font-size: 11.5px; vertical-align: top; }
+        tbody tr td { padding: 14px 14px; font-size: 11.5px; vertical-align: middle; line-height: 1.5; }
 
         .td-desc {
-          font-size: 11px; color: #374151; line-height: 1.45;
+          font-size: 11px; color: #374151; line-height: 1.55;
           max-width: 340px; overflow: hidden; text-overflow: ellipsis;
           display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
         }
@@ -265,8 +269,9 @@ export default function AnomaliesPage() {
               <span className="an-table-title">Anomaly Records</span>
               <span className="an-table-sub">{filtered.length} of {anomalies.length} records</span>
             </div>
+            <div className="an-table-scroll">
             <table>
-              <thead>
+              <thead style={{ position: 'sticky', top: 0, zIndex: 1 }}>
                 <tr>
                   <th>Status</th>
                   <th>Severity</th>
@@ -310,6 +315,7 @@ export default function AnomaliesPage() {
                 })}
               </tbody>
             </table>
+            </div>
           </div>
         )}
       </div>
