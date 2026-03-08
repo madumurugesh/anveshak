@@ -92,26 +92,7 @@ export default function SchemeChart() {
   }
 
   return (
-    <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
-      <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-        <h2 className="text-sm font-semibold text-gray-900 tracking-tight">Scheme Performance</h2>
-        <div className="flex gap-1">
-          {rangeLabels.map((r) => (
-            <button
-              key={r.key}
-              onClick={() => handleRangeChange(r.key)}
-              className={`px-2.5 py-1 text-[11px] font-medium rounded-full transition-all ${
-                range === r.key
-                  ? 'bg-[#2A4E1A] text-white shadow-sm'
-                  : 'bg-[#F4F9F0] text-gray-500 hover:bg-[#EBF5E3] hover:text-[#3E7228]'
-              }`}
-            >
-              {r.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
+    <div>
       <div className={`transition-opacity ${loading ? 'opacity-50' : 'opacity-100'}`}>
         <div className="overflow-x-auto">
           <ResponsiveContainer width="100%" height={300}>
@@ -119,13 +100,14 @@ export default function SchemeChart() {
               data={data}
               margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
             >
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
               <XAxis
                 dataKey="scheme"
                 tick={{ fill: '#9ca3af', fontSize: 11 }}
                 tickFormatter={(v: string) => v.charAt(0).toUpperCase() + v.slice(1)}
+                axisLine={{ stroke: '#e5e7eb' }}
               />
-              <YAxis tick={{ fill: '#9ca3af', fontSize: 11 }} />
+              <YAxis tick={{ fill: '#9ca3af', fontSize: 11 }} axisLine={{ stroke: '#e5e7eb' }} />
               <Tooltip content={<CustomTooltip />} />
               <Legend
                 wrapperStyle={{ color: '#6b7280', fontSize: 12 }}
@@ -133,14 +115,14 @@ export default function SchemeChart() {
               <Bar
                 dataKey="yesCount"
                 name="YES"
-                fill="#22C55E"
+                fill="#34A853"
                 radius={[4, 4, 0, 0]}
                 animationDuration={800}
               />
               <Bar
                 dataKey="noCount"
                 name="NO"
-                fill="#EF4444"
+                fill="#EA4335"
                 radius={[4, 4, 0, 0]}
                 animationDuration={800}
               />

@@ -5,20 +5,16 @@ import { useAlerts } from '@/hooks/useAlerts'
 import ActionModal from './ActionModal'
 import type { Alert } from '@/types'
 
-const ITEMS_PER_PAGE = 20
-
 const severityColor: Record<string, string> = {
-  HIGH: 'bg-red-50 text-red-600 border-red-500/30',
-  MEDIUM: 'bg-yellow-50 text-yellow-600 border-yellow-500/30',
-  LOW: 'bg-green-50 text-green-600 border-green-500/30',
+  HIGH: 'text-[#EA4335]',
+  MEDIUM: 'text-[#F9AB00]',
+  LOW: 'text-[#34A853]',
 }
 
-const schemeColor: Record<string, string> = {
-  ration: 'bg-[#EBF5E3] text-[#3E7228]',
-  pension: 'bg-purple-50 text-purple-600',
-  scholarship: 'bg-teal-50 text-teal-600',
-  lpg: 'bg-orange-50 text-orange-600',
-  farmer: 'bg-green-50 text-green-600',
+const severityBg: Record<string, string> = {
+  HIGH: 'bg-red-50 border-red-100',
+  MEDIUM: 'bg-amber-50 border-amber-100',
+  LOW: 'bg-green-50 border-green-100',
 }
 
 function getRelativeTime(dateStr: string): string {
@@ -34,112 +30,50 @@ function getRelativeTime(dateStr: string): string {
   return `${days}d ago`
 }
 
-function getFailureRateColor(rate: number): string {
-  if (rate <= 0.1) return 'text-green-600'
-  if (rate <= 0.25) return 'text-yellow-600'
-  if (rate <= 0.4) return 'text-orange-600'
-  return 'text-red-600'
-}
-
 export default function AlertsPanel() {
   const { sortedAlerts, isNewAlert } = useAlerts()
-  const [page, setPage] = useState(0)
   const [selectedAlert, setSelectedAlert] = useState<Alert | null>(null)
-
-  const totalPages = Math.ceil(sortedAlerts.length / ITEMS_PER_PAGE)
-  const pageAlerts = sortedAlerts.slice(
-    page * ITEMS_PER_PAGE,
-    (page + 1) * ITEMS_PER_PAGE
-  )
 
   const handleTakeAction = useCallback((alert: Alert) => {
     setSelectedAlert(alert)
   }, [])
 
-  return (
-    <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="text-sm font-semibold text-gray-900 tracking-tight">Active Alerts</h2>
-        <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">
-          Auto-refresh · 30s
-        </span>
-      </div>
+  // Show max 5 in the insights view
+  const visibleAlerts = sortedAlerts.slice(0, 5)
 
-      <div className="max-h-[500px] overflow-y-auto space-y-2.5 pr-1">
-        {pageAlerts.length === 0 && (
-          <p className="text-gray-500 text-sm text-center py-8">No alerts found.</p>
+  return (
+    <div>
+      <div className="space-y-3 max-h-[420px] overflow-y-auto">
+        {visibleAlerts.length === 0 && (
+          <p className="text-gray-400 text-xs text-center py-6">No insights available.</p>
         )}
-        {pageAlerts.map((alert) => (
+        {visibleAlerts.map((alert) => (
           <div
             key={alert.alertId}
-            className={`bg-[#F4F9F0] rounded-lg p-3 border border-[#DFF0D6] transition-all hover:border-[#7BBF4E]/40 ${
-              isNewAlert(alert.alertId) ? 'animate-pulse-border' : ''
-            }`}
+            className={`rounded-xl p-3.5 border transition-all cursor-pointer hover:shadow-sm ${
+              severityBg[alert.severity] ?? 'bg-gray-50 border-gray-100'
+            } ${isNewAlert(alert.alertId) ? 'ring-2 ring-[#F9AB00]/30' : ''}`}
+            onClick={() => handleTakeAction(alert)}
           >
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap mb-2">
-                  <h3 className="font-semibold text-gray-900 truncate">
-                    {alert.districtName}
-                  </h3>
-                  <span
-                    className={`text-xs px-2 py-0.5 rounded-full ${
-                      schemeColor[alert.scheme] ?? 'bg-gray-100 text-gray-600'
-                    }`}
-                  >
-                    {alert.scheme.charAt(0).toUpperCase() + alert.scheme.slice(1)}
-                  </span>
-                  <span
-                    className={`text-xs px-2 py-0.5 rounded-full border ${
-                      severityColor[alert.severity]
-                    }`}
-                  >
-                    {alert.severity}
-                  </span>
-                </div>
-                <div className="flex items-center gap-4">
-                  <span
-                    className={`text-xl font-bold ${getFailureRateColor(alert.failureRate)}`}
-                  >
-                    {(alert.failureRate * 100).toFixed(1)}%
-                  </span>
-                  <span className="text-xs text-gray-500">
-                    {getRelativeTime(alert.createdAt)}
-                  </span>
-                </div>
-              </div>
-              <button
-                onClick={() => handleTakeAction(alert)}
-                className="shrink-0 px-3 py-1.5 bg-[#2A4E1A] hover:bg-[#3E7228] text-white text-xs font-medium rounded-lg transition"
-              >
-                Take Action
-              </button>
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                {alert.severity} ALERT
+              </span>
+              <span className="text-[10px] text-gray-400">{getRelativeTime(alert.createdAt)}</span>
             </div>
+            <p className="text-xs font-semibold text-gray-800 leading-snug mb-1">
+              {alert.districtName} — {alert.scheme ? alert.scheme.charAt(0).toUpperCase() + alert.scheme.slice(1) : 'Unknown'}
+            </p>
+            <p className="text-[11px] text-gray-500 leading-relaxed">
+              Failure rate at{' '}
+              <span className={`font-bold ${severityColor[alert.severity]}`}>
+                {(alert.failureRate * 100).toFixed(1)}%
+              </span>
+              {' '}— requires investigation
+            </p>
           </div>
         ))}
       </div>
-
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-200">
-          <button
-            onClick={() => setPage((p) => Math.max(0, p - 1))}
-            disabled={page === 0}
-            className="px-3 py-1.5 text-sm bg-gray-100 text-gray-600 rounded-lg disabled:opacity-30 hover:bg-gray-200 transition"
-          >
-            Previous
-          </button>
-          <span className="text-sm text-gray-500">
-            Page {page + 1} of {totalPages}
-          </span>
-          <button
-            onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
-            disabled={page >= totalPages - 1}
-            className="px-3 py-1.5 text-sm bg-gray-100 text-gray-600 rounded-lg disabled:opacity-30 hover:bg-gray-200 transition"
-          >
-            Next
-          </button>
-        </div>
-      )}
 
       {selectedAlert && (
         <ActionModal
