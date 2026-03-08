@@ -14,8 +14,7 @@ import {
 } from 'recharts'
 import { analytics } from '@/lib/apiClients'
 import { adaptAnomalies } from '@/lib/adapters'
-import Navbar from '@/components/Navbar'
-import Sidebar from '@/components/Sidebar'
+import DashboardShell from '@/components/DashboardShell'
 import type { Alert, Severity } from '@/types'
 import type { AnalyticsDistrictSummary, AnalyticsSchemeOverview, AnalyticsTrendPoint } from '@/types/api'
 
@@ -91,11 +90,7 @@ export default function DistrictDetailPage() {
   }, [fetchData])
 
   return (
-    <div className="min-h-screen bg-[#F4F9F0]">
-      <Navbar />
-      <div className="flex">
-        <Sidebar />
-        <main className="flex-1 p-4 lg:p-6 space-y-6 overflow-x-hidden">
+    <DashboardShell title={districtName} subtitle="Tamil Nadu">
           {loading && (
             <div className="space-y-6 animate-pulse">
               <div className="h-10 w-64 bg-white rounded" />
@@ -119,12 +114,6 @@ export default function DistrictDetailPage() {
 
           {!loading && !error && (
             <>
-              {/* Header */}
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">{districtName}</h1>
-                <p className="text-sm text-gray-500 mt-0.5">Tamil Nadu</p>
-              </div>
-
               {/* Overview Cards */}
               {summary && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
@@ -233,8 +222,6 @@ export default function DistrictDetailPage() {
               </div>
             </>
           )}
-        </main>
-      </div>
-    </div>
+    </DashboardShell>
   )
 }

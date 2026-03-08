@@ -1,20 +1,202 @@
-@import url('https://fonts.googleapis.com/css2?family=Gabarito:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
-
-*{
-  font-family: 'Gabarito', sans-serif;
-}
 
 @theme inline {
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
+:root {
+  --green-900: #0D2B1A;
+  --green-800: #163D26;
+  --green-700: #1A5C35;
+  --green-600: #1E7A45;
+  --green-500: #22A658;
+  --green-400: #4CC97A;
+  --green-300: #7DDEA0;
+  --green-100: #E2F5EA;
+  --green-50:  #F0FAF3;
+  --accent:    #F9AB00;
+  --accent-dk: #D98E00;
+  --white:     #FFFFFF;
+  --gray-900:  #111827;
+  --gray-700:  #374151;
+  --gray-500:  #6B7280;
+  --gray-400:  #9CA3AF;
+  --gray-300:  #D1D5DB;
+  --gray-200:  #E5E7EB;
+  --gray-100:  #F3F4F6;
+  --gray-50:   #F9FAFB;
+  --border:    #E5EDE8;
+  --shadow-sm: 0 1px 2px rgba(13,43,26,0.06);
+  --shadow:    0 2px 8px rgba(13,43,26,0.08);
+  --shadow-md: 0 4px 16px rgba(13,43,26,0.10);
+}
+
+* { box-sizing: border-box; }
 
 body {
-  background: #F5F6FA;
-  color: #1f2937;
-  font-family: Arial, Helvetica, sans-serif;
+  background: #F5F7F5;
+  color: var(--gray-900);
+  font-family: 'DM Sans', 'Helvetica Neue', sans-serif;
+}
+
+/* ── Shared Card Styles ── */
+.card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--shadow-sm);
+}
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px 0;
+  margin-bottom: 12px;
+}
+.card-title {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--gray-900);
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+/* ── Badges ── */
+.badge {
+  font-size: 10px;
+  font-weight: 500;
+  padding: 2px 7px;
+  border-radius: 20px;
+  letter-spacing: 0.01em;
+}
+.badge-green {
+  background: var(--green-100);
+  color: var(--green-700);
+}
+.badge-accent {
+  background: #FEF3C7;
+  color: #92400E;
+}
+.badge-gray {
+  background: var(--gray-100);
+  color: var(--gray-500);
+}
+
+/* ── Stats ── */
+.stat-number {
+  font-family: 'DM Mono', monospace;
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--gray-900);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.stat-label {
+  font-size: 10.5px;
+  color: var(--gray-500);
+  font-weight: 400;
+  margin-top: 2px;
+}
+.stat-delta {
+  font-size: 10px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+.delta-up   { color: var(--green-600); }
+.delta-down { color: #DC2626; }
+
+/* ── Status Dots ── */
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.dot-green  { background: var(--green-500); }
+.dot-accent { background: var(--accent); }
+.dot-red    { background: #EF4444; }
+
+/* ── Pill Tabs ── */
+.pill-tabs {
+  display: flex;
+  background: var(--gray-100);
+  border-radius: 6px;
+  padding: 2px;
+  gap: 1px;
+}
+.pill-tab {
+  padding: 4px 10px;
+  font-size: 10.5px;
+  font-weight: 500;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: var(--gray-500);
+  background: transparent;
+}
+.pill-tab.active {
+  background: var(--white);
+  color: var(--gray-900);
+  box-shadow: var(--shadow-sm);
+}
+.pill-tab:hover:not(.active) { color: var(--gray-700); }
+
+/* ── Links ── */
+.link-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--green-600);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.link-arrow:hover { color: var(--green-800); }
+
+/* ── Progress Bars ── */
+.progress-bar {
+  height: 4px;
+  background: var(--gray-100);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* ── Icon Buttons ── */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--gray-600);
+  background: var(--gray-100);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.icon-btn:hover { background: var(--gray-200); }
+
+/* ── Section Labels ── */
+.section-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 8px;
 }
 
 /* Leaflet overrides */

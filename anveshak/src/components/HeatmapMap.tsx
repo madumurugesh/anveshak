@@ -1,6 +1,6 @@
 'use client'
 
-import { MapContainer, TileLayer, Circle, Popup } from 'react-leaflet'
+import { useEffect, useState, useRef } from 'react'
 import Link from 'next/link'
 import { useDashboardStore } from '@/store/dashboardStore'
 import 'leaflet/dist/leaflet.css'
@@ -38,9 +38,33 @@ function Legend() {
 
 export default function HeatmapMap() {
   const heatmapData = useDashboardStore((s) => s.heatmapData)
+  const [mounted, setMounted] = useState(false)
+  const mapRef = useRef<L.Map | null>(null)
+
+  // Only render the map after the component has mounted in the DOM
+  useEffect(() => {
+    setMounted(true)
+    return () => {
+      // Clean up map instance on unmount
+      if (mapRef.current) {
+        mapRef.current.remove()
+        mapRef.current = null
+      }
+    }
+  }, [])
 
   // Center on India
   const center: [number, number] = [22.5, 82.0]
+
+  if (!mounted) {
+    return (
+      <div className="relative w-full min-h-[300px] md:min-h-[500px] rounded-xl overflow-hidden bg-gray-50 animate-pulse" />
+    )
+  }
+
+  // Lazy-require react-leaflet to ensure Leaflet is only loaded client-side
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { MapContainer, TileLayer, Circle, Popup } = require('react-leaflet')
 
   return (
     <div className="relative w-full min-h-[300px] md:min-h-[500px] rounded-xl overflow-hidden">
@@ -50,6 +74,7 @@ export default function HeatmapMap() {
         scrollWheelZoom={true}
         className="w-full h-full"
         style={{ minHeight: '300px', height: '500px' }}
+        ref={mapRef}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'

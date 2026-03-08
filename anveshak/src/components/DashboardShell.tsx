@@ -4,7 +4,7 @@ import Navbar from '@/components/Navbar'
 import Sidebar from '@/components/Sidebar'
 
 interface Props {
-  title: string
+  title?: string
   subtitle?: string
   children: React.ReactNode
   actions?: React.ReactNode
@@ -12,21 +12,34 @@ interface Props {
 
 export default function DashboardShell({ title, subtitle, children, actions }: Props) {
   return (
-    <div className="min-h-screen bg-[#FAFAFA]">
+    <div className="min-h-screen" style={{ background: '#F5F7F5' }}>
       <Navbar />
-      <div className="flex">
+      <div style={{ display: 'flex' }}>
         <Sidebar />
-        <main className="flex-1 p-5 lg:p-8 overflow-x-hidden max-w-[1600px]">
-          <div className="flex items-center justify-between flex-wrap gap-3 pb-4 mb-5 border-b border-gray-200">
-            <div>
-              <h1 className="text-lg font-semibold text-gray-900 tracking-tight">{title}</h1>
-              {subtitle && <p className="text-xs text-gray-500 mt-0.5">{subtitle}</p>}
+        <main style={{ flex: 1, padding: '16px 20px', maxWidth: 1400, overflowX: 'hidden' as const }}>
+          {title && (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap' as const,
+              gap: 12,
+              paddingBottom: 14,
+              marginBottom: 16,
+              borderBottom: '1px solid var(--border)',
+            }}>
+              <div>
+                <h1 style={{ fontSize: 15, fontWeight: 600, color: 'var(--gray-900)', letterSpacing: '-0.01em' }}>
+                  {title}
+                </h1>
+                {subtitle && (
+                  <p style={{ fontSize: 11.5, color: 'var(--gray-500)', marginTop: 2 }}>{subtitle}</p>
+                )}
+              </div>
+              {actions && <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>{actions}</div>}
             </div>
-            {actions && <div className="flex items-center gap-2">{actions}</div>}
-          </div>
-          <div className="space-y-5">
-            {children}
-          </div>
+          )}
+          {children}
         </main>
       </div>
     </div>

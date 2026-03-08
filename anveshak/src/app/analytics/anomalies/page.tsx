@@ -2,12 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import DashboardShell from '@/components/DashboardShell'
-import { mockAnomalies } from '@/lib/mockData'
 import { analytics } from '@/lib/apiClients'
 import { adaptAnomalyRecords } from '@/lib/adapters'
 import type { Anomaly } from '@/types'
-
-const IS_MOCK = process.env.NEXT_PUBLIC_USE_MOCK === 'true'
 
 const statusColors: Record<Anomaly['status'], string> = {
   OPEN: 'bg-red-50 text-red-600',
@@ -17,11 +14,10 @@ const statusColors: Record<Anomaly['status'], string> = {
 
 export default function AnomaliesPage() {
   const [filter, setFilter] = useState<'ALL' | Anomaly['status']>('ALL')
-  const [anomalies, setAnomalies] = useState<Anomaly[]>(IS_MOCK ? mockAnomalies : [])
-  const [loading, setLoading] = useState(!IS_MOCK)
+  const [anomalies, setAnomalies] = useState<Anomaly[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (IS_MOCK) return
     let cancelled = false
     ;(async () => {
       try {

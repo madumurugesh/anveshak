@@ -11,11 +11,8 @@ import {
   Tooltip,
   Legend,
 } from 'recharts'
-import api from '@/lib/axios'
 import { analytics } from '@/lib/apiClients'
 import { adaptSchemesToChartData } from '@/lib/adapters'
-
-const IS_MOCK = process.env.NEXT_PUBLIC_USE_MOCK === 'true'
 
 type Range = 'today' | '7d' | '30d'
 
@@ -66,14 +63,9 @@ export default function SchemeChart() {
   const fetchData = useCallback(async (r: Range) => {
     setLoading(true)
     try {
-      if (IS_MOCK) {
-        const res = await api.get('/scheme-performance', { params: { range: r } })
-        setData(res.data)
-      } else {
-        const days = r === 'today' ? 1 : r === '7d' ? 7 : 30
-        const res = await analytics.schemes.list({ days })
-        setData(adaptSchemesToChartData(res.data ?? []))
-      }
+      const days = r === 'today' ? 1 : r === '7d' ? 7 : 30
+      const res = await analytics.schemes.list({ days })
+      setData(adaptSchemesToChartData(res.data ?? []))
     } catch {
       // keep existing data
     } finally {
