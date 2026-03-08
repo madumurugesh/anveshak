@@ -47,12 +47,27 @@ jobs:
 
       - name: Deploy services and configure Nginx
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT || '5432' }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          ENGINE_SECRET: ${{ secrets.ENGINE_SECRET }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION || 'us-east-1' }}
+          COGNITO_USER_POOL_ID: ${{ secrets.COGNITO_USER_POOL_ID }}
+          COGNITO_CLIENT_ID: ${{ secrets.COGNITO_CLIENT_ID }}
+          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+          EC2_PUBLIC_IP: ${{ secrets.EC2_HOST }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
           command_timeout: 15m
+          envs: DB_HOST,DB_PORT,DB_NAME,DB_USER,DB_PASSWORD,ENGINE_SECRET,OPENAI_API_KEY,AWS_REGION,COGNITO_USER_POOL_ID,COGNITO_CLIENT_ID,ADMIN_EMAIL,ADMIN_PASSWORD,EC2_PUBLIC_IP
           script: |
             set -e
 
@@ -90,6 +105,70 @@ jobs:
 
             info "Node $(node -v) | PM2 $(pm2 -v) | pnpm $(pnpm -v)"
 
+            # ── 2b. Write .env files ──
+            info "Writing environment files..."
+
+            cat > "$APP_DIR/anveshak/.env" <<EOF
+NEXT_PUBLIC_ANALYTICS_API_URL=http://${EC2_PUBLIC_IP}/api/analytics
+NEXT_PUBLIC_ANOMALY_API_URL=http://${EC2_PUBLIC_IP}/api/anomaly
+NEXT_PUBLIC_ENGINE_SECRET=${ENGINE_SECRET}
+NEXT_PUBLIC_COGNITO_USER_POOL_ID=${COGNITO_USER_POOL_ID}
+NEXT_PUBLIC_COGNITO_CLIENT_ID=${COGNITO_CLIENT_ID}
+NEXT_PUBLIC_ADMIN_EMAIL=${ADMIN_EMAIL}
+NEXT_PUBLIC_ADMIN_PASSWORD=${ADMIN_PASSWORD}
+NEXT_PUBLIC_USE_MOCK=false
+NEXT_PUBLIC_AWS_REGION=${AWS_REGION}
+EOF
+
+            cat > "$APP_DIR/analytics/.env" <<EOF
+DB_HOST=${DB_HOST}
+DB_PORT=${DB_PORT}
+DB_NAME=${DB_NAME}
+DB_USER=${DB_USER}
+DB_PASSWORD=${DB_PASSWORD}
+ENGINE_SECRET=${ENGINE_SECRET}
+COGNITO_USER_POOL_ID=${COGNITO_USER_POOL_ID}
+AWS_REGION=${AWS_REGION}
+CORS_ORIGINS=http://${EC2_PUBLIC_IP}
+NODE_ENV=production
+EOF
+
+            cat > "$APP_DIR/aiAnamolyDetection/.env" <<EOF
+DB_HOST=${DB_HOST}
+DB_PORT=${DB_PORT}
+DB_NAME=${DB_NAME}
+DB_USER=${DB_USER}
+DB_PASSWORD=${DB_PASSWORD}
+ENGINE_SECRET=${ENGINE_SECRET}
+OPENAI_API_KEY=${OPENAI_API_KEY}
+COGNITO_USER_POOL_ID=${COGNITO_USER_POOL_ID}
+AWS_REGION=${AWS_REGION}
+CORS_ORIGINS=http://${EC2_PUBLIC_IP}
+NODE_ENV=production
+EOF
+
+            cat > "$APP_DIR/ingestion-service/.env" <<EOF
+PG_HOST=${DB_HOST}
+PG_PORT=${DB_PORT}
+PG_DATABASE=${DB_NAME}
+PG_USER=${DB_USER}
+PG_PASSWORD=${DB_PASSWORD}
+AWS_REGION=${AWS_REGION}
+EOF
+
+            cat > "$APP_DIR/stream-processing-service/.env" <<EOF
+PG_HOST=${DB_HOST}
+PG_PORT=${DB_PORT}
+PG_DATABASE=${DB_NAME}
+PG_USER=${DB_USER}
+PG_PASSWORD=${DB_PASSWORD}
+AWS_REGION=${AWS_REGION}
+ENGINE_SECRET=${ENGINE_SECRET}
+ANOMALY_ENGINE_URL=http://127.0.0.1:3002
+EOF
+
+            info "Environment files written"
+
             # ── 3. Deploy Next.js Frontend (port 3000) ──
             if should_deploy "frontend"; then
               info "Deploying frontend (anveshak)..."
@@ -107,7 +186,7 @@ jobs:
               cd "$APP_DIR/analytics"
               pnpm install --frozen-lockfile --prod
               pm2 delete analytics 2>/dev/null || true
-              pm2 start server.js --name analytics
+              pm2 start server.js --name analytics --cwd "$APP_DIR/analytics"
               info "Analytics deployed on port 3001"
             fi
 
@@ -117,7 +196,7 @@ jobs:
               cd "$APP_DIR/aiAnamolyDetection"
               pnpm install --frozen-lockfile --prod
               pm2 delete anomaly-detection 2>/dev/null || true
-              pm2 start server.js --name anomaly-detection
+              pm2 start server.js --name anomaly-detection --cwd "$APP_DIR/aiAnamolyDetection"
               info "Anomaly detection deployed on port 3002"
             fi
 
