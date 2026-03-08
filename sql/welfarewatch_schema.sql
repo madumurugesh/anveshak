@@ -326,7 +326,6 @@ CREATE INDEX IF NOT EXISTS idx_officers_district_role    ON officers (district, 
 CREATE TABLE IF NOT EXISTS dashboard_sessions (
     id                  UUID            PRIMARY KEY DEFAULT gen_random_uuid(),
     officer_id          UUID            NOT NULL,        -- FK → officers.id
-    cognito_token_jti   VARCHAR(100)    UNIQUE NOT NULL,
     ip_address          INET,
     user_agent          TEXT,
     login_at            TIMESTAMPTZ     DEFAULT NOW(),

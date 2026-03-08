@@ -75,3 +75,6 @@ cache/
 temp/
 output/
 results/
+
+/node_modules/
+package-lock.json
