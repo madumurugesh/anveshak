@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { signOut } from '@/lib/auth'
@@ -18,6 +18,14 @@ export default function Navbar() {
   const pathname = usePathname()
 
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
+  const [initials, setInitials] = useState('AK')
+
+  useEffect(() => {
+    const userEmail = Cookies.get('userEmail')
+    if (userEmail) {
+      setInitials(userEmail.slice(0, 2).toUpperCase())
+    }
+  }, [])
 
   const handleLogout = async () => {
     try {
@@ -29,11 +37,6 @@ export default function Navbar() {
     Cookies.remove('userEmail')
     router.push('/login')
   }
-
-  const userEmail = typeof window !== 'undefined' ? Cookies.get('userEmail') : ''
-  const initials = userEmail
-    ? userEmail.slice(0, 2).toUpperCase()
-    : 'AK'
 
   return (
     <>
