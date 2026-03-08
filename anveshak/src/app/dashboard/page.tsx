@@ -44,7 +44,8 @@ function formatCount(n: number): string {
 }
 
 export default function DashboardPage() {
-  const { fetchAll } = useDashboardData()
+  const [timeRange, setTimeRange] = useState<TimeRange>('7d')
+  const { fetchAll } = useDashboardData(timeRange)
   useWebSocket()
 
   const isLoading = useDashboardStore((s) => s.isLoading)
@@ -55,7 +56,6 @@ export default function DashboardPage() {
   const heatmapData = useDashboardStore((s) => s.heatmapData)
   const heatmapCells = useDashboardStore((s) => s.heatmapCells)
   const alerts = useDashboardStore((s) => s.alerts)
-  const [timeRange, setTimeRange] = useState<TimeRange>('7d')
   const [selectedCell, setSelectedCell] = useState<AnalyticsHeatmapCell | null>(null)
 
   const ranges: { key: TimeRange; label: string }[] = [
@@ -97,7 +97,7 @@ export default function DashboardPage() {
   const totalBeneficiaries = parseInt(overview?.beneficiaries?.total_beneficiaries || '0')
   const totalResponses = parseInt(overview?.responses?.total_responses || '0')
   const totalAnomalies = parseInt(overview?.anomalies?.total_anomalies || '0')
-  const avgNoPct = parseFloat(overview?.responses?.avg_no_pct || '0')
+  const avgNoPct = parseFloat(overview?.responses?.avg_no_pct || '0') * 100
   const districtsReporting = parseInt(overview?.responses?.districts_reporting || '0')
 
   return (

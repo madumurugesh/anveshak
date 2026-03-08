@@ -234,7 +234,10 @@ lines.append("-- ============================================================")
 lines.append("")
 
 dr_rows = []
-sample_dates = sorted(random.sample(ALL_DATES, min(50, len(ALL_DATES))))
+# Always include the last 7 days so the dashboard default window has data
+recent_7 = [DATE_END - timedelta(days=i) for i in range(7)]
+other_dates = [d for d in ALL_DATES if d not in recent_7]
+sample_dates = sorted(set(recent_7 + random.sample(other_dates, min(43, len(other_dates)))))
 seen_dr = set()
 
 for d_obj in sample_dates:
@@ -358,7 +361,10 @@ lines.append("")
 anomaly_rows = []
 anomaly_ids = []
 
-anomaly_dates = sorted(random.sample(ALL_DATES, min(40, len(ALL_DATES))))
+# Always include the last 7 days for anomaly data too
+recent_7_anom = [DATE_END - timedelta(days=i) for i in range(7)]
+other_anom_dates = [d for d in ALL_DATES if d not in recent_7_anom]
+anomaly_dates = sorted(set(recent_7_anom + random.sample(other_anom_dates, min(33, len(other_anom_dates)))))
 for d_obj in anomaly_dates:
     count = random.randint(5, 10)
     for _ in range(count):

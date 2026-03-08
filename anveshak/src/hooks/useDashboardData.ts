@@ -11,7 +11,15 @@ import {
 
 const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
 
-export const useDashboardData = () => {
+const TIME_RANGE_DAYS: Record<string, number> = {
+  '7d': 7,
+  '30d': 30,
+  '6m': 180,
+  '12m': 365,
+}
+
+export const useDashboardData = (timeRange: string = '7d') => {
+  const days = TIME_RANGE_DAYS[timeRange] || 7
   const {
     setLoading,
     setSummary,
@@ -25,20 +33,20 @@ export const useDashboardData = () => {
     lastFetched,
   } = useDashboardStore()
 
-  const fetchAll = useCallback(async () => {
+  const fetchAll = useCallback(async (force?: boolean) => {
     const now = Date.now()
-    if (lastFetched && now - lastFetched < CACHE_TTL) return
+    if (!force && lastFetched && now - lastFetched < CACHE_TTL) return
 
     setLoading(true)
     setError(null)
 
     try {
       const [overviewRes, districtRes, schemesRes, anomaliesRes, heatmapRes] = await Promise.all([
-        analytics.dashboard.overview({ days: 7 }),
-        analytics.dashboard.districtSummary({ days: 7 }),
-        analytics.schemes.list({ days: 7 }),
-        analytics.anomalies.list({ days: 7, limit: 50 }),
-        analytics.anomalies.heatmap({ days: 7 }),
+        analytics.dashboard.overview({ days }),
+        analytics.dashboard.districtSummary({ days }),
+        analytics.schemes.list({ days }),
+        analytics.anomalies.list({ days, limit: 50 }),
+        analytics.anomalies.heatmap({ days }),
       ])
 
       const overview = overviewRes.data
@@ -65,11 +73,11 @@ export const useDashboardData = () => {
     } finally {
       setLoading(false)
     }
-  }, [lastFetched, setLoading, setSummary, setOverview, setSchemes, setHeatmapData, setHeatmapCells, setAlerts, setError, setLastFetched])
+  }, [days, lastFetched, setLoading, setSummary, setOverview, setSchemes, setHeatmapData, setHeatmapCells, setAlerts, setError, setLastFetched])
 
   useEffect(() => {
-    fetchAll()
-  }, [fetchAll])
+    fetchAll(true)
+  }, [days]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return { fetchAll }
 }
