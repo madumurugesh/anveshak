@@ -97,7 +97,7 @@ jobs:
               pnpm install --frozen-lockfile
               pnpm build
               pm2 delete anveshak-frontend 2>/dev/null || true
-              pm2 start "cd $APP_DIR/anveshak && pnpm start" --name anveshak-frontend --interpreter bash
+              pm2 start pnpm --name anveshak-frontend --cwd "$APP_DIR/anveshak" -- start
               info "Frontend deployed on port 3000"
             fi
 
