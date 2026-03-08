@@ -7,10 +7,50 @@ const { validateEngineSecret, validateQuery } = require("../middleware/validate"
 const asyncHandler = (fn) => (req, res, next) =>
   Promise.resolve(fn(req, res, next)).catch(next);
 
-// ─────────────────────────────────────────────────────────────
-// GET /api/analytics/ai/usage
-// Token consumption, cost tracking, call volume
-// ─────────────────────────────────────────────────────────────
+/**
+ * @swagger
+ * tags:
+ *   - name: AI
+ *     description: AI usage tracking, performance, and classification accuracy
+ */
+
+/**
+ * @swagger
+ * /api/analytics/ai/usage:
+ *   get:
+ *     tags: [AI]
+ *     summary: AI token / cost usage
+ *     description: Token consumption, cost tracking, and call volume with daily trend.
+ *     parameters:
+ *       - $ref: '#/components/parameters/Days'
+ *       - $ref: '#/components/parameters/StartDate'
+ *       - $ref: '#/components/parameters/EndDate'
+ *     responses:
+ *       200:
+ *         description: Usage summary
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     summary:
+ *                       type: object
+ *                       properties:
+ *                         total_calls: { type: string }
+ *                         successful_calls: { type: string }
+ *                         failed_calls: { type: string }
+ *                         total_tokens: { type: string }
+ *                         total_cost_usd: { type: string }
+ *                         avg_latency_ms: { type: string }
+ *                         p50_latency_ms: { type: string }
+ *                         p95_latency_ms: { type: string }
+ *                     by_model: { type: array, items: { type: object } }
+ *                     daily_trend: { type: array, items: { type: object } }
+ */
 router.get(
   "/usage",
   validateEngineSecret,
@@ -93,10 +133,33 @@ router.get(
   })
 );
 
-// ─────────────────────────────────────────────────────────────
-// GET /api/analytics/ai/performance
-// Success rate, latency distribution, error analysis
-// ─────────────────────────────────────────────────────────────
+/**
+ * @swagger
+ * /api/analytics/ai/performance:
+ *   get:
+ *     tags: [AI]
+ *     summary: AI performance metrics
+ *     description: Latency distribution, error breakdown, and per-lambda stats.
+ *     parameters:
+ *       - $ref: '#/components/parameters/Days'
+ *       - $ref: '#/components/parameters/StartDate'
+ *       - $ref: '#/components/parameters/EndDate'
+ *     responses:
+ *       200:
+ *         description: Performance data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     latency_distribution: { type: array, items: { type: object, properties: { latency_bucket: { type: string }, count: { type: string } } } }
+ *                     errors: { type: array, items: { type: object, properties: { error_message: { type: string }, count: { type: string } } } }
+ *                     by_lambda: { type: array, items: { type: object } }
+ */
 router.get(
   "/performance",
   validateEngineSecret,
@@ -175,10 +238,34 @@ router.get(
   })
 );
 
-// ─────────────────────────────────────────────────────────────
-// GET /api/analytics/ai/classification-accuracy
-// Classification distribution and confidence analysis
-// ─────────────────────────────────────────────────────────────
+/**
+ * @swagger
+ * /api/analytics/ai/classification-accuracy:
+ *   get:
+ *     tags: [AI]
+ *     summary: Classification accuracy
+ *     description: Distribution of AI classifications, confidence bands, and classification-vs-status cross-tab.
+ *     parameters:
+ *       - $ref: '#/components/parameters/Days'
+ *       - $ref: '#/components/parameters/StartDate'
+ *       - $ref: '#/components/parameters/EndDate'
+ *       - $ref: '#/components/parameters/SchemeId'
+ *     responses:
+ *       200:
+ *         description: Accuracy analytics
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     distribution: { type: array, items: { type: object, properties: { ai_classification: { type: string }, count: { type: string }, avg_confidence: { type: string } } } }
+ *                     confidence_bands: { type: array, items: { type: object, properties: { confidence_band: { type: string }, count: { type: string } } } }
+ *                     classification_vs_status: { type: array, items: { type: object } }
+ */
 router.get(
   "/classification-accuracy",
   validateEngineSecret,

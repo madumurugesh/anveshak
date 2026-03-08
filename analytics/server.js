@@ -8,6 +8,8 @@ const { v4: uuidv4 } = require("uuid");
 const rateLimit   = require("express-rate-limit");
 const logger      = require("./config/logger");
 const pool        = require("./config/db");
+const swaggerSpec = require("./config/swagger");
+const swaggerUi   = require("swagger-ui-express");
 
 // Route modules
 const dashboardRoutes    = require("./routes/dashboard");
@@ -78,6 +80,10 @@ app.use(
 // ─── Cognito JWT validation (passes through if no JWT or Cognito not configured) ──
 const { validateCognitoJwt } = require("./middleware/cognitoAuth");
 app.use(validateCognitoJwt);
+
+// ─── Swagger UI ─────────────────────────────────────────────
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec, { customSiteTitle: "Anveshak Analytics API Docs" }));
+app.get("/api-docs.json", (req, res) => res.json(swaggerSpec));
 
 // ─── Routes ─────────────────────────────────────────────────
 app.use("/api/analytics/dashboard",     dashboardRoutes);

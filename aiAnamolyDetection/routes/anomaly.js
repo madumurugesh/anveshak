@@ -9,8 +9,36 @@ const logger = require("../config/logger");
 const asyncHandler = (fn) => (req, res, next) =>
   Promise.resolve(fn(req, res, next)).catch(next);
 
-// POST /api/anomaly/classify
-// Classify a single anomaly record
+/**
+ * @swagger
+ * tags:
+ *   - name: Anomaly
+ *     description: AI anomaly classification engine
+ */
+
+/**
+ * @swagger
+ * /api/anomaly/classify:
+ *   post:
+ *     tags: [Anomaly]
+ *     summary: Classify a single anomaly
+ *     description: Sends a single anomaly record through OpenAI classification.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/AnomalyInput'
+ *     responses:
+ *       200:
+ *         description: Classification result
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ClassificationResult'
+ *       500:
+ *         description: Classification failed
+ */
 router.post(
   "/classify",
   validateEngineSecret,
@@ -39,8 +67,45 @@ router.post(
   })
 );
 
-// POST /api/anomaly/classify/batch
-// Classify a batch of anomaly records (max BATCH_SIZE)
+/**
+ * @swagger
+ * /api/anomaly/classify/batch:
+ *   post:
+ *     tags: [Anomaly]
+ *     summary: Classify a batch of anomalies
+ *     description: Classify multiple anomaly records (max BATCH_SIZE).
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [anomalies]
+ *             properties:
+ *               anomalies:
+ *                 type: array
+ *                 items:
+ *                   $ref: '#/components/schemas/AnomalyInput'
+ *     responses:
+ *       200:
+ *         description: Batch result
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 summary:
+ *                   type: object
+ *                   properties:
+ *                     total: { type: integer }
+ *                     succeeded: { type: integer }
+ *                     failed: { type: integer }
+ *                 results:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/ClassificationResult'
+ */
 router.post(
   "/classify/batch",
   validateEngineSecret,
@@ -62,8 +127,39 @@ router.post(
   })
 );
 
-// POST /api/anomaly/classify/pending
-// Pull all PENDING anomalies from DB and classify them
+/**
+ * @swagger
+ * /api/anomaly/classify/pending:
+ *   post:
+ *     tags: [Anomaly]
+ *     summary: Classify pending anomalies
+ *     description: Pull all PENDING anomalies from DB and classify them.
+ *     parameters:
+ *       - name: limit
+ *         in: query
+ *         schema: { type: integer, default: 5 }
+ *         description: Max pending records to process
+ *     responses:
+ *       200:
+ *         description: Batch result
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 message: { type: string }
+ *                 summary:
+ *                   type: object
+ *                   properties:
+ *                     total: { type: integer }
+ *                     succeeded: { type: integer }
+ *                     failed: { type: integer }
+ *                 results:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/ClassificationResult'
+ */
 router.post(
   "/classify/pending",
   validateEngineSecret,
@@ -120,8 +216,40 @@ router.post(
   })
 );
 
-// GET /api/anomaly/:id/result
-// Fetch the AI result for a classified anomaly
+/**
+ * @swagger
+ * /api/anomaly/{id}/result:
+ *   get:
+ *     tags: [Anomaly]
+ *     summary: Get classification result
+ *     description: Fetch the AI classification result for a specific anomaly.
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema: { type: string, format: uuid }
+ *     responses:
+ *       200:
+ *         description: Classification detail
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id: { type: string }
+ *                     ai_classification: { type: string }
+ *                     ai_confidence: { type: number }
+ *                     ai_reasoning: { type: string }
+ *                     ai_action: { type: string }
+ *                     ai_urgency: { type: string }
+ *                     status: { type: string }
+ *       404:
+ *         description: Anomaly not found
+ */
 router.get("/:id/result", validateEngineSecret, asyncHandler(async (req, res) => {
   const { id } = req.params;
   try {
@@ -143,8 +271,43 @@ router.get("/:id/result", validateEngineSecret, asyncHandler(async (req, res) =>
   }
 }));
 
-// GET /api/anomaly/stats
-// AI processing stats - useful for dashboard and cost tracking
+/**
+ * @swagger
+ * /api/anomaly/stats:
+ *   get:
+ *     tags: [Anomaly]
+ *     summary: Processing stats
+ *     description: AI processing stats for the last 7 days — classification counts and OpenAI cost/token usage.
+ *     responses:
+ *       200:
+ *         description: Stats overview
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 window: { type: string, example: last_7_days }
+ *                 anomalies:
+ *                   type: object
+ *                   properties:
+ *                     total_anomalies: { type: string }
+ *                     classified: { type: string }
+ *                     pending: { type: string }
+ *                     supply_failure: { type: string }
+ *                     demand_collapse: { type: string }
+ *                     fraud_pattern: { type: string }
+ *                     data_artifact: { type: string }
+ *                     avg_confidence: { type: string }
+ *                 openai_usage:
+ *                   type: object
+ *                   properties:
+ *                     total_cost_usd: { type: string }
+ *                     total_tokens: { type: string }
+ *                     total_calls: { type: string }
+ *                     successful_calls: { type: string }
+ *                     avg_latency_ms: { type: string }
+ */
 router.get("/stats", validateEngineSecret, asyncHandler(async (req, res) => {
   try {
     const { rows } = await pool.query(`

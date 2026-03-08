@@ -44,7 +44,8 @@ function formatCount(n: number): string {
 }
 
 export default function DashboardPage() {
-  const { fetchAll } = useDashboardData()
+  const [timeRange, setTimeRange] = useState<TimeRange>('7d')
+  const { fetchAll } = useDashboardData(timeRange)
   useWebSocket()
 
   const isLoading = useDashboardStore((s) => s.isLoading)
@@ -55,7 +56,6 @@ export default function DashboardPage() {
   const heatmapData = useDashboardStore((s) => s.heatmapData)
   const heatmapCells = useDashboardStore((s) => s.heatmapCells)
   const alerts = useDashboardStore((s) => s.alerts)
-  const [timeRange, setTimeRange] = useState<TimeRange>('7d')
   const [selectedCell, setSelectedCell] = useState<AnalyticsHeatmapCell | null>(null)
 
   const ranges: { key: TimeRange; label: string }[] = [
@@ -97,7 +97,7 @@ export default function DashboardPage() {
   const totalBeneficiaries = parseInt(overview?.beneficiaries?.total_beneficiaries || '0')
   const totalResponses = parseInt(overview?.responses?.total_responses || '0')
   const totalAnomalies = parseInt(overview?.anomalies?.total_anomalies || '0')
-  const avgNoPct = parseFloat(overview?.responses?.avg_no_pct || '0')
+  const avgNoPct = parseFloat(overview?.responses?.avg_no_pct || '0') * 100
   const districtsReporting = parseInt(overview?.responses?.districts_reporting || '0')
 
   return (
@@ -162,10 +162,6 @@ export default function DashboardPage() {
               </p>
             </div>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-              <button className="icon-btn">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4"/></svg>
-                Filter
-              </button>
               <button className="icon-btn" style={{ background: 'var(--green-700)', color: 'white' }}
                 onClick={() => { useDashboardStore.getState().setLastFetched(0); fetchAll(); }}>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>

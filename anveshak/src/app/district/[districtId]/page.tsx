@@ -56,7 +56,7 @@ export default function DistrictDetailPage() {
     try {
       const [districtRes, schemeRes, trendRes, anomalyRes] = await Promise.all([
         analytics.dashboard.districtSummary({ scheme_id: undefined }),
-        analytics.schemes.list({ days: 7 }),
+        analytics.schemes.list({ days: 30 }),
         analytics.dashboard.trends({ days: 30, district: districtName }),
         analytics.anomalies.list({ district: districtName, limit: 20 }),
       ])
@@ -131,7 +131,7 @@ export default function DistrictDetailPage() {
                   </div>
                   <div className="bg-white rounded-xl p-5 shadow-sm">
                     <p className="text-3xl font-bold text-gray-900">
-                      {parseFloat(summary.avg_no_pct).toFixed(1)}%
+                      {(parseFloat(summary.avg_no_pct) * 100).toFixed(1)}%
                     </p>
                     <p className="text-sm text-gray-500">Avg Failure Rate</p>
                   </div>

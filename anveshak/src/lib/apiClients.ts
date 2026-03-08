@@ -22,6 +22,7 @@ import type {
   AnomalyStats,
   HealthResponse,
   ApiError,
+  DemoRunWeekResponse,
 } from '@/types/api'
 
 // ─── Configuration ───────────────────────────────────────────
@@ -372,4 +373,15 @@ export const anomalyEngine = {
     ),
 
   stats: () => apiGet<AnomalyStats>(ANOMALY_BASE, '/api/anomaly/stats'),
+
+  demo: {
+    runWeek: (body: {
+      days: { date: string; yes_count: number; no_count: number; active_beneficiaries: number }[]
+      district: string
+      scheme_id: string
+      pincode?: string
+      block?: string
+      state?: string
+    }) => apiPost<DemoRunWeekResponse>(ANOMALY_BASE, '/api/demo/run-week', body),
+  },
 }

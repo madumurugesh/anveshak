@@ -22,7 +22,9 @@ export const SCHEME_META: Record<string, { label: string; color: string }> = {
 
 // ── Severity helpers (exported so LeafletMap can import) ─────
 export function getSeverity(cell: AnalyticsHeatmapCell): 'critical' | 'high' | 'normal' {
-  const pct = parseFloat(cell.avg_no_pct) || 0
+  const raw = parseFloat(cell.avg_no_pct) || 0
+  // avg_no_pct is stored as a fraction (0.0–1.0); convert to percentage
+  const pct = raw <= 1 ? raw * 100 : raw
   if (pct > 30) return 'critical'
   if (pct > 15) return 'high'
   return 'normal'
@@ -67,7 +69,7 @@ export default function HotspotMapPage() {
   const totalAnomalies = filtered.reduce((a, c) => a + (parseInt(c.anomaly_count) || 0), 0)
   const totalCritical  = filtered.reduce((a, c) => a + (parseInt(c.critical) || 0), 0)
   const avgFailure     = filtered.length
-    ? (filtered.reduce((a, c) => a + (parseFloat(c.avg_no_pct) || 0), 0) / filtered.length).toFixed(1)
+    ? (filtered.reduce((a, c) => a + (parseFloat(c.avg_no_pct) || 0), 0) / filtered.length * 100).toFixed(1)
     : '0'
 
   const maxCount = Math.max(...filtered.map(c => parseInt(c.anomaly_count) || 0), 1)
@@ -345,7 +347,7 @@ export default function HotspotMapPage() {
                   { k: 'Total Anomalies', v: selected.anomaly_count },
                   { k: 'Critical',        v: selected.critical },
                   { k: 'High',            v: selected.high },
-                  { k: 'Avg Failure Rate',v: `${parseFloat(selected.avg_no_pct).toFixed(1)}%` },
+                  { k: 'Avg Failure Rate',v: `${(parseFloat(selected.avg_no_pct) * 100).toFixed(1)}%` },
                   { k: 'Avg Score',       v: parseFloat(selected.avg_score || '0').toFixed(3) },
                 ].map(row => (
                   <div key={row.k} className="drow">

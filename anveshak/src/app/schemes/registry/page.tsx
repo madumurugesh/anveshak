@@ -34,7 +34,7 @@ export default function SchemeRegistryPage() {
             const totalBeneficiaries = parseInt(s.total_beneficiaries) || 0
             const activeBeneficiaries = parseInt(s.active_beneficiaries) || 0
             const totalResponses = parseInt(s.total_responses) || 0
-            const avgNoPct = parseFloat(s.avg_no_pct) || 0
+            const avgNoPct = (parseFloat(s.avg_no_pct) || 0) * 100
 
             return (
               <div key={s.scheme_id} className="bg-white rounded-xl border border-gray-200 p-6">

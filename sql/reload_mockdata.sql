@@ -13,9 +13,23 @@ TRUNCATE TABLE rejected_responses CASCADE;
 TRUNCATE TABLE daily_responses CASCADE;
 TRUNCATE TABLE beneficiaries CASCADE;
 
--- Re-insert init.sql seed data for officers (they are NOT truncated)
--- Officers table has FK refs, so we don't truncate it.
--- But beneficiaries seed data needs to be re-inserted:
+-- Re-insert officers (needed for FK references, not truncated but might be missing)
+INSERT INTO officers (id, name, email, role, district, block, state) VALUES
+  ('a0000000-0000-0000-0000-000000000001', 'Priya Kumari',   'priya@tn.gov.in',    'DISTRICT_OFFICER', 'Chengalpattu', NULL,            'Tamil Nadu'),
+  ('a0000000-0000-0000-0000-000000000002', 'Rajan Murugan',  'rajan@tn.gov.in',    'BLOCK_OFFICER',    'Chengalpattu', 'Madurantakam',  'Tamil Nadu'),
+  ('a0000000-0000-0000-0000-000000000003', 'Selvi Devi',     'selvi@tn.gov.in',    'DISTRICT_OFFICER', 'Villupuram',   NULL,            'Tamil Nadu'),
+  ('a0000000-0000-0000-0000-000000000004', 'Karthik Subash', 'karthik@tn.gov.in',  'STATE_ADMIN',      NULL,           NULL,            'Tamil Nadu')
+ON CONFLICT (id) DO NOTHING;
+
+-- Re-insert scheme_config (scheme analytics depends on this table)
+INSERT INTO scheme_config (scheme_id, scheme_name_en, scheme_name_ta, distribution_day_start, distribution_day_end, survey_window_days, min_expected_response_rate) VALUES
+  ('PDS',             'Public Distribution System',  'பொது விநியோக முறை',       1,  5,  7, 0.200),
+  ('PM_KISAN',        'PM Kisan Samman Nidhi',       'பிஎம் கிசான்',             1,  5, 10, 0.150),
+  ('OLD_AGE_PENSION', 'Old Age Pension',             'முதியோர் ஓய்வூதியம்',      1,  3,  7, 0.100),
+  ('LPG',             'LPG Subsidy (PAHAL/DBTL)',    'எல்பிஜி மானியம்',          1, 30, 30, 0.120)
+ON CONFLICT (scheme_id) DO NOTHING;
+
+-- Re-insert init.sql seed beneficiaries
 INSERT INTO beneficiaries (phone_hash, name, scheme_id, pincode, block, district, state, age, gender) VALUES
   ('a1b2c3d4e5f6a7b8', 'Rama Krishnan',    'PDS',             '603001', 'Madurantakam', 'Chengalpattu', 'Tamil Nadu', 45, 'M'),
   ('b2c3d4e5f6a7b8c9', 'Lakshmi Devi',      'PM_KISAN',        '605001', 'Vikravandi',   'Villupuram',   'Tamil Nadu', 38, 'F'),

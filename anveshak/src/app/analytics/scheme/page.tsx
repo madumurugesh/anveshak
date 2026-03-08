@@ -76,7 +76,7 @@ export default function SchemeAnalyticsPage() {
   const totalCritical   = schemes.reduce((a, s) => a + (parseInt(s.critical_anomalies) || 0), 0)
   const totalResponses  = schemes.reduce((a, s) => a + (parseInt(s.total_responses) || 0), 0)
   const avgFailure      = schemes.length
-    ? (schemes.reduce((a, s) => a + (parseFloat(s.avg_no_pct) || 0), 0) / schemes.length).toFixed(1)
+    ? (schemes.reduce((a, s) => a + (parseFloat(s.avg_no_pct) || 0), 0) / schemes.length * 100).toFixed(1)
     : '0'
 
   return (
@@ -309,13 +309,13 @@ export default function SchemeAnalyticsPage() {
         ) : !error && (
           <div className="scheme-grid">
             {sorted.map(sa => {
-              const failureRate       = parseFloat(sa.avg_no_pct) || 0
+              const failureRate       = (parseFloat(sa.avg_no_pct) || 0) * 100
               const totalBeneficiaries= parseInt(sa.total_beneficiaries) || 0
               const activeBeneficiaries = parseInt(sa.active_beneficiaries) || 0
               const totalResp         = parseInt(sa.total_responses) || 0
               const anomalyCount      = parseInt(sa.anomaly_count) || 0
               const criticalAnomalies = parseInt(sa.critical_anomalies) || 0
-              const responseRate      = parseFloat(sa.avg_response_rate || '0')
+              const responseRate      = (parseFloat(sa.avg_response_rate || '0')) * 100
               const schemeColor       = getSchemeColor(sa.scheme_id)
               const isSelected        = selected === sa.scheme_id
               const sev               = failureRate > 25 ? 'c' : failureRate > 15 ? 'h' : 'ok'

@@ -7,10 +7,88 @@ const { validateEngineSecret, validateQuery } = require("../middleware/validate"
 const asyncHandler = (fn) => (req, res, next) =>
   Promise.resolve(fn(req, res, next)).catch(next);
 
-// ─────────────────────────────────────────────────────────────
-// GET /api/analytics/anomalies
-// Paginated anomaly list with multi-filter support
-// ─────────────────────────────────────────────────────────────
+/**
+ * @swagger
+ * tags:
+ *   - name: Anomalies
+ *     description: Anomaly records — listing, summary, heatmap, and detail
+ */
+
+/**
+ * @swagger
+ * /api/analytics/anomalies:
+ *   get:
+ *     tags: [Anomalies]
+ *     summary: List anomalies (paginated)
+ *     description: Paginated anomaly list with multi-filter support (severity, status, classification, detector, district, scheme, etc.).
+ *     parameters:
+ *       - $ref: '#/components/parameters/Page'
+ *       - $ref: '#/components/parameters/Limit'
+ *       - $ref: '#/components/parameters/Days'
+ *       - $ref: '#/components/parameters/StartDate'
+ *       - $ref: '#/components/parameters/EndDate'
+ *       - $ref: '#/components/parameters/District'
+ *       - $ref: '#/components/parameters/SchemeId'
+ *       - name: block
+ *         in: query
+ *         schema: { type: string }
+ *       - name: state
+ *         in: query
+ *         schema: { type: string }
+ *       - name: severity
+ *         in: query
+ *         schema: { type: string, enum: [CRITICAL, HIGH, MEDIUM, LOW] }
+ *       - name: status
+ *         in: query
+ *         schema: { type: string, enum: [NEW, ASSIGNED, INVESTIGATING, FIELD_VISIT, RESOLVED, ESCALATED] }
+ *       - name: ai_classification
+ *         in: query
+ *         schema: { type: string, enum: [SUPPLY_FAILURE, DEMAND_COLLAPSE, FRAUD_PATTERN, DATA_ARTIFACT, PENDING] }
+ *       - name: detector_type
+ *         in: query
+ *         schema: { type: string, enum: [NO_SPIKE, SILENCE, DUPLICATE_BENEFICIARY, DISTRICT_ROLLUP] }
+ *       - name: level
+ *         in: query
+ *         schema: { type: string, enum: [PINCODE, BLOCK, DISTRICT] }
+ *     responses:
+ *       200:
+ *         description: Paginated anomaly list
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 pagination: { $ref: '#/components/schemas/Pagination' }
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id: { type: string, format: uuid }
+ *                       date: { type: string, format: date }
+ *                       detector_type: { type: string }
+ *                       level: { type: string }
+ *                       pincode: { type: string, nullable: true }
+ *                       block: { type: string, nullable: true }
+ *                       district: { type: string }
+ *                       state: { type: string }
+ *                       scheme_id: { type: string }
+ *                       severity: { type: string }
+ *                       score: { type: number }
+ *                       no_pct: { type: number, nullable: true }
+ *                       baseline_no_pct: { type: number, nullable: true }
+ *                       total_responses: { type: integer }
+ *                       affected_beneficiaries: { type: integer }
+ *                       ai_classification: { type: string, nullable: true }
+ *                       ai_confidence: { type: number, nullable: true }
+ *                       ai_reasoning: { type: string, nullable: true }
+ *                       ai_action: { type: string, nullable: true }
+ *                       ai_urgency: { type: string, nullable: true }
+ *                       status: { type: string }
+ *                       assigned_officer_name: { type: string, nullable: true }
+ *                       assigned_officer_role: { type: string, nullable: true }
+ */
 router.get(
   "/",
   validateEngineSecret,
@@ -93,10 +171,60 @@ router.get(
   })
 );
 
-// ─────────────────────────────────────────────────────────────
-// GET /api/analytics/anomalies/summary
-// Aggregated counts by severity, classification, status
-// ─────────────────────────────────────────────────────────────
+/**
+ * @swagger
+ * /api/analytics/anomalies/summary:
+ *   get:
+ *     tags: [Anomalies]
+ *     summary: Anomaly summary aggregates
+ *     description: Aggregated counts grouped by severity, AI classification, status, and detector type.
+ *     parameters:
+ *       - $ref: '#/components/parameters/Days'
+ *       - $ref: '#/components/parameters/StartDate'
+ *       - $ref: '#/components/parameters/EndDate'
+ *       - $ref: '#/components/parameters/District'
+ *       - $ref: '#/components/parameters/SchemeId'
+ *     responses:
+ *       200:
+ *         description: Summary breakdown
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     by_severity:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           severity: { type: string }
+ *                           count: { type: string }
+ *                     by_classification:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           classification: { type: string }
+ *                           count: { type: string }
+ *                     by_status:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           status: { type: string }
+ *                           count: { type: string }
+ *                     by_detector_type:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           detector_type: { type: string }
+ *                           count: { type: string }
+ */
 router.get(
   "/summary",
   validateEngineSecret,
@@ -157,10 +285,40 @@ router.get(
   })
 );
 
-// ─────────────────────────────────────────────────────────────
-// GET /api/analytics/anomalies/heatmap
-// District×scheme anomaly counts for map visualisation
-// ─────────────────────────────────────────────────────────────
+/**
+ * @swagger
+ * /api/analytics/anomalies/heatmap:
+ *   get:
+ *     tags: [Anomalies]
+ *     summary: Anomaly heatmap data
+ *     description: District × scheme anomaly counts for map visualisation.
+ *     parameters:
+ *       - $ref: '#/components/parameters/Days'
+ *       - $ref: '#/components/parameters/StartDate'
+ *       - $ref: '#/components/parameters/EndDate'
+ *     responses:
+ *       200:
+ *         description: Heatmap cells
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 count: { type: integer }
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       district: { type: string }
+ *                       scheme_id: { type: string }
+ *                       anomaly_count: { type: string }
+ *                       critical: { type: string }
+ *                       high: { type: string }
+ *                       avg_score: { type: string }
+ *                       avg_no_pct: { type: string }
+ */
 router.get(
   "/heatmap",
   validateEngineSecret,
@@ -202,10 +360,63 @@ router.get(
   })
 );
 
-// ─────────────────────────────────────────────────────────────
-// GET /api/analytics/anomalies/:id
-// Single anomaly detail with full action timeline
-// ─────────────────────────────────────────────────────────────
+/**
+ * @swagger
+ * /api/analytics/anomalies/{id}:
+ *   get:
+ *     tags: [Anomalies]
+ *     summary: Single anomaly detail
+ *     description: Full anomaly record with action timeline and AI prompt logs.
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema: { type: string, format: uuid }
+ *         description: Anomaly record UUID
+ *     responses:
+ *       200:
+ *         description: Anomaly detail with actions and AI prompts
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id: { type: string, format: uuid }
+ *                     date: { type: string, format: date }
+ *                     detector_type: { type: string }
+ *                     severity: { type: string }
+ *                     ai_classification: { type: string, nullable: true }
+ *                     ai_confidence: { type: number, nullable: true }
+ *                     ai_reasoning: { type: string, nullable: true }
+ *                     status: { type: string }
+ *                     actions:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id: { type: string }
+ *                           action_type: { type: string }
+ *                           notes: { type: string }
+ *                           officer_name: { type: string }
+ *                           created_at: { type: string, format: date-time }
+ *                     ai_prompts:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id: { type: string }
+ *                           model: { type: string }
+ *                           total_tokens: { type: integer }
+ *                           cost_usd: { type: number }
+ *                           latency_ms: { type: integer }
+ *                           success: { type: boolean }
+ *       404:
+ *         description: Anomaly not found
+ */
 router.get(
   "/:id",
   validateEngineSecret,
