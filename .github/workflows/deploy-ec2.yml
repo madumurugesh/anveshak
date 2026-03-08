@@ -86,7 +86,7 @@ jobs:
             command -v node  >/dev/null || { error "Node.js not installed"; exit 1; }
             command -v pm2   >/dev/null || { error "PM2 not installed"; exit 1; }
             command -v nginx >/dev/null || { error "Nginx not installed"; exit 1; }
-            command -v pnpm  >/dev/null || npm install -g pnpm
+            command -v pnpm  >/dev/null || sudo npm install -g pnpm
 
             info "Node $(node -v) | PM2 $(pm2 -v) | pnpm $(pnpm -v)"
 
