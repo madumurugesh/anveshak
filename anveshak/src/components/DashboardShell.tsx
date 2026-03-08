@@ -12,11 +12,11 @@ interface Props {
 
 export default function DashboardShell({ title, subtitle, children, actions }: Props) {
   return (
-    <div className="min-h-screen" style={{ background: '#F5F7F5' }}>
+    <div style={{ background: '#F5F7F5', height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <Navbar />
-      <div style={{ display: 'flex' }}>
+      <div style={{ display: 'flex', flex: 1, minHeight: 0 }}>
         <Sidebar />
-        <main style={{ flex: 1, padding: '16px 20px', maxWidth: 1400, overflowX: 'hidden' as const }}>
+        <main style={{ flex: 1, padding: '16px 20px', maxWidth: 1400, overflowX: 'hidden' as const, overflowY: 'auto' }}>
           {title && (
             <div style={{
               display: 'flex',
