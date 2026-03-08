@@ -380,10 +380,9 @@ INSERT INTO notification_log (
 -- dashboard_sessions - 6 mock login sessions
 -- ============================================================
 
-INSERT INTO dashboard_sessions (officer_id, cognito_token_jti, ip_address, user_agent, login_at, last_active_at, logout_at) VALUES
+INSERT INTO dashboard_sessions (officer_id, ip_address, user_agent, login_at, last_active_at, logout_at) VALUES
 (
     '11111111-0000-0000-0000-000000000001',
-    'jti-token-central-20241119-01',
     '10.0.1.50',
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/130.0',
     '2024-11-19 09:00:00+05:30',
@@ -392,7 +391,6 @@ INSERT INTO dashboard_sessions (officer_id, cognito_token_jti, ip_address, user_
 ),
 (
     '11111111-0000-0000-0000-000000000002',
-    'jti-token-state-20241119-01',
     '10.0.2.22',
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_1) Safari/605.1',
     '2024-11-19 08:30:00+05:30',
@@ -401,7 +399,6 @@ INSERT INTO dashboard_sessions (officer_id, cognito_token_jti, ip_address, user_
 ),
 (
     '11111111-0000-0000-0000-000000000003',
-    'jti-token-dist-cheng-20241119-01',
     '10.0.3.15',
     'Mozilla/5.0 (Linux; Android 14) Chrome/130.0 Mobile',
     '2024-11-19 10:00:00+05:30',
@@ -410,7 +407,6 @@ INSERT INTO dashboard_sessions (officer_id, cognito_token_jti, ip_address, user_
 ),
 (
     '11111111-0000-0000-0000-000000000004',
-    'jti-token-dist-villu-20241119-01',
     '10.0.4.8',
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Firefox/131.0',
     '2024-11-19 14:35:00+05:30',
@@ -419,7 +415,6 @@ INSERT INTO dashboard_sessions (officer_id, cognito_token_jti, ip_address, user_
 ),
 (
     '11111111-0000-0000-0000-000000000005',
-    'jti-token-block-madur-20241119-01',
     '10.0.5.3',
     'Mozilla/5.0 (Linux; Android 13) Chrome/129.0 Mobile',
     '2024-11-19 16:05:00+05:30',
@@ -428,7 +423,6 @@ INSERT INTO dashboard_sessions (officer_id, cognito_token_jti, ip_address, user_
 ),
 (
     '11111111-0000-0000-0000-000000000006',
-    'jti-token-block-vikra-20241119-01',
     '10.0.6.12',
     'Mozilla/5.0 (Linux; Android 14) Chrome/130.0 Mobile',
     '2024-11-19 14:32:00+05:30',
