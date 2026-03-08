@@ -69,7 +69,7 @@ export default function ActionModal({ alert, onClose }: ActionModalProps) {
           <div>
             <h2 className="text-lg font-semibold text-gray-900">Take Action</h2>
             <p className="text-sm text-gray-500 mt-0.5">
-              {alert.districtName} — {alert.scheme.charAt(0).toUpperCase() + alert.scheme.slice(1)}
+              {alert.districtName} - {alert.scheme.charAt(0).toUpperCase() + alert.scheme.slice(1)}
             </p>
           </div>
           <button

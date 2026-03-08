@@ -1,5 +1,5 @@
 -- ============================================================
--- WelfareWatch — Complete Database Schema
+-- WelfareWatch - Complete Database Schema
 -- PostgreSQL DDL + DynamoDB mock inserts as seed data
 -- Layers: Edge → Ingest → Detection → AI → Alert → Dashboard
 -- ============================================================
@@ -23,7 +23,7 @@ $$ LANGUAGE sql IMMUTABLE PARALLEL SAFE;
 -- DynamoDB: ivr_sessions (represented as a PG table for reference)
 -- In production this lives in DynamoDB with TTL = 300s
 CREATE TABLE IF NOT EXISTS ivr_sessions (
-    call_sid        VARCHAR(64)     PRIMARY KEY,         -- Twilio CallSid — unique per call
+    call_sid        VARCHAR(64)     PRIMARY KEY,         -- Twilio CallSid - unique per call
     phone_hash      VARCHAR(64)     NOT NULL,            -- SHA-256 of caller number
     scheme_id       VARCHAR(20),                         -- PDS | PM_KISAN | OLD_AGE_PENSION | LPG
     step            VARCHAR(30),                         -- SCHEME_SELECTED | COMPLETED | TIMED_OUT | INVALID
@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS ivr_sessions (
 -- LAYER: INGEST
 -- ============================================================
 
--- DynamoDB: responses (windowed counters — represented as PG table for reference)
+-- DynamoDB: responses (windowed counters - represented as PG table for reference)
 CREATE TABLE IF NOT EXISTS responses_dynamo_ref (
     pk              VARCHAR(60)     NOT NULL,            -- pincode#scheme_id  e.g. 607001#PDS
     sk              VARCHAR(30)     NOT NULL,            -- date#window_hour   e.g. 2024-11-19#18
@@ -368,7 +368,7 @@ END $$;
 
 
 -- ============================================================
--- SEED DATA — scheme_config (structured)
+-- SEED DATA - scheme_config (structured)
 -- ============================================================
 
 INSERT INTO scheme_config (
@@ -432,7 +432,7 @@ INSERT INTO scheme_config (
 
 
 -- ============================================================
--- SEED DATA — officers (mock)
+-- SEED DATA - officers (mock)
 -- ============================================================
 
 INSERT INTO officers (id, cognito_sub, name, email, phone_hash, role, district, block, state, is_active) VALUES
@@ -493,7 +493,7 @@ INSERT INTO officers (id, cognito_sub, name, email, phone_hash, role, district, 
 
 
 -- ============================================================
--- SEED DATA — beneficiaries (mock — 10 records per scheme)
+-- SEED DATA - beneficiaries (mock - 10 records per scheme)
 -- ============================================================
 
 INSERT INTO beneficiaries (phone_hash, name, scheme_id, pincode, block, district, state, ration_card_number, aadhaar_last4, gender, age, is_active, enrolled_date, language_pref) VALUES
@@ -547,7 +547,7 @@ INSERT INTO beneficiaries (phone_hash, name, scheme_id, pincode, block, district
 
 
 -- ============================================================
--- SEED DATA — anomaly_records (mock — 3 records)
+-- SEED DATA - anomaly_records (mock - 3 records)
 -- ============================================================
 
 INSERT INTO anomaly_records (
@@ -565,7 +565,7 @@ INSERT INTO anomaly_records (
     'CRITICAL', 4.2, 0.78, 0.31, 142, 210,
     '{"z_score": 4.2, "today_no_pct": 0.78, "baseline_no_pct": 0.31, "std_dev": 0.112, "window": "2024-11-19#14"}'::JSONB,
     'SUPPLY_FAILURE', 0.91,
-    'NO% spiked to 78% vs 7-day baseline of 31% — z-score 4.2 indicates a non-random event. Pattern consistent with distribution point not opening.',
+    'NO% spiked to 78% vs 7-day baseline of 31% - z-score 4.2 indicates a non-random event. Pattern consistent with distribution point not opening.',
     'Conduct immediate field visit to FPS store at 605001. Verify stock availability and dealer attendance.',
     '605001 இல் உள்ள FPS கடைக்கு உடனடி கள வருகை மேற்கொள்ளவும். பங்கு கிடைக்கும் தன்மையை சரிபார்க்கவும்.',
     'TODAY',
@@ -599,7 +599,7 @@ INSERT INTO anomaly_records (
     'HIGH', 0.41, 0.41, 0.22, 1840, 3200,
     '{"flagged_blocks": ["Vikravandi", "Ulundurpet", "Kallakurichi"], "district_no_pct": 0.41, "threshold": 0.40, "min_flagged_blocks": 3}'::JSONB,
     'SUPPLY_FAILURE', 0.77,
-    'Three blocks exceeded NO% threshold simultaneously — suggests a district-level disbursement delay rather than isolated incidents.',
+    'Three blocks exceeded NO% threshold simultaneously - suggests a district-level disbursement delay rather than isolated incidents.',
     'Escalate to District Collector. Review PM Kisan instalment release status from PFMS portal for Villupuram.',
     'மாவட்ட ஆட்சியரிடம் தெரிவிக்கவும். வில்லுபுரத்திற்கான PFMS போர்ட்டலில் PM கிசான் தவணை வெளியீட்டு நிலையை சரிபார்க்கவும்.',
     'TODAY',
@@ -610,7 +610,7 @@ INSERT INTO anomaly_records (
 
 
 -- ============================================================
--- SEED DATA — alert_actions (mock)
+-- SEED DATA - alert_actions (mock)
 -- ============================================================
 
 INSERT INTO alert_actions (anomaly_record_id, officer_id, action_type, notes, created_at) VALUES
@@ -638,7 +638,7 @@ INSERT INTO alert_actions (anomaly_record_id, officer_id, action_type, notes, cr
 
 
 -- ============================================================
--- SEED DATA — daily_reports (mock — JSONB included)
+-- SEED DATA - daily_reports (mock - JSONB included)
 -- ============================================================
 
 INSERT INTO daily_reports (
@@ -649,7 +649,7 @@ INSERT INTO daily_reports (
 (
     'Villupuram',
     '2024-11-19',
-    'Villupuram district recorded 4,320 total responses across all four welfare schemes on 19 November 2024, representing a 72% response rate against 6,000 active beneficiaries. One CRITICAL anomaly was detected in pincode 605001 under PDS — NO% reached 78% against a 31% baseline, indicating a probable FPS distribution failure. A district-wide HIGH alert was also raised for PM Kisan, with three blocks (Vikravandi, Ulundurpet, Kallakurichi) simultaneously exceeding the 40% NO threshold. Immediate field verification is underway. Old Age Pension and LPG schemes performed within expected parameters today.',
+    'Villupuram district recorded 4,320 total responses across all four welfare schemes on 19 November 2024, representing a 72% response rate against 6,000 active beneficiaries. One CRITICAL anomaly was detected in pincode 605001 under PDS - NO% reached 78% against a 31% baseline, indicating a probable FPS distribution failure. A district-wide HIGH alert was also raised for PM Kisan, with three blocks (Vikravandi, Ulundurpet, Kallakurichi) simultaneously exceeding the 40% NO threshold. Immediate field verification is underway. Old Age Pension and LPG schemes performed within expected parameters today.',
     4320, 2, 1, 1, 0,
     '{"PDS": {"responses": 1420, "no_pct": 0.38, "anomalies": 1}, "PM_KISAN": {"responses": 1100, "no_pct": 0.41, "anomalies": 1}, "OLD_AGE_PENSION": {"responses": 980, "no_pct": 0.21, "anomalies": 0}, "LPG": {"responses": 820, "no_pct": 0.18, "anomalies": 0}}'::JSONB,
     'Gingee',

@@ -39,7 +39,7 @@ export const useWebSocket = () => {
   }, [])
 
   useEffect(() => {
-    // In mock mode, skip WebSocket entirely — data is already loaded via useDashboardData
+    // In mock mode, skip WebSocket entirely - data is already loaded via useDashboardData
     if (IS_MOCK) return
 
     const wsUrl = process.env.NEXT_PUBLIC_WS_URL
@@ -61,7 +61,7 @@ export const useWebSocket = () => {
     }
 
     ws.onerror = () => {
-      console.error('WebSocket error — falling back to polling')
+      console.error('WebSocket error - falling back to polling')
       ws.close()
       startPolling()
     }

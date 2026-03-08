@@ -62,14 +62,14 @@ export default function AlertsPanel() {
               <span className="text-[10px] text-gray-400">{getRelativeTime(alert.createdAt)}</span>
             </div>
             <p className="text-xs font-semibold text-gray-800 leading-snug mb-1">
-              {alert.districtName} — {alert.scheme ? alert.scheme.charAt(0).toUpperCase() + alert.scheme.slice(1) : 'Unknown'}
+              {alert.districtName} - {alert.scheme ? alert.scheme.charAt(0).toUpperCase() + alert.scheme.slice(1) : 'Unknown'}
             </p>
             <p className="text-[11px] text-gray-500 leading-relaxed">
               Failure rate at{' '}
               <span className={`font-bold ${severityColor[alert.severity]}`}>
                 {(alert.failureRate * 100).toFixed(1)}%
               </span>
-              {' '}— requires investigation
+              {' '}- requires investigation
             </p>
           </div>
         ))}

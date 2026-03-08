@@ -1,4 +1,4 @@
-# WelfareWatch Analytics Engine — Frontend API Documentation
+# WelfareWatch Analytics Engine - Frontend API Documentation
 
 > **Base URL:** `http://localhost:3001`  
 > **Version:** 1.0.0  
@@ -50,8 +50,8 @@ Most `GET` endpoints accept these query parameters:
 | Param        | Type   | Default | Description                              |
 | ------------ | ------ | ------- | ---------------------------------------- |
 | `days`       | number | `7`     | Look-back window (1–365)                 |
-| `start_date` | string | —       | ISO date `YYYY-MM-DD` (overrides `days`) |
-| `end_date`   | string | —       | ISO date `YYYY-MM-DD` (overrides `days`) |
+| `start_date` | string | -       | ISO date `YYYY-MM-DD` (overrides `days`) |
+| `end_date`   | string | -       | ISO date `YYYY-MM-DD` (overrides `days`) |
 
 > If both `start_date` and `end_date` are provided, they take priority over `days`.
 
@@ -102,7 +102,7 @@ All responses follow this structure:
 
 ### `GET /api/analytics/dashboard/overview`
 
-Main dashboard cards — key metrics across all domains.
+Main dashboard cards - key metrics across all domains.
 
 **Query:** `days`, `start_date`, `end_date`
 
@@ -339,7 +339,7 @@ District × scheme matrix with anomaly counts for map/heatmap visualisation.
 
 Full anomaly detail including action timeline and AI prompt history.
 
-**Params:** `id` — UUID of the anomaly record
+**Params:** `id` - UUID of the anomaly record
 
 **Response:**
 
@@ -438,7 +438,7 @@ Paginated list of daily district reports.
 
 Full report with narrative, related anomalies, and notification log.
 
-**Params:** `id` — UUID of the report
+**Params:** `id` - UUID of the report
 
 **Response:**
 
@@ -478,7 +478,7 @@ Full report with narrative, related anomalies, and notification log.
 
 Generate a presigned S3 URL to download the report PDF.
 
-**Params:** `id` — UUID of the report
+**Params:** `id` - UUID of the report
 
 **Response:**
 
@@ -506,7 +506,7 @@ Generate a presigned S3 URL to download the report PDF.
 
 All reports for a specific district with pagination.
 
-**Params:** `district` — District name  
+**Params:** `district` - District name  
 **Query:** `days`, `start_date`, `end_date`, `page`, `limit`
 
 ---
@@ -681,7 +681,7 @@ All schemes with current performance metrics (responses, anomalies, beneficiarie
 
 Single scheme detail with district breakdown, daily trends, and top anomalies.
 
-**Params:** `schemeId` — `PDS`, `PM_KISAN`, `OLD_AGE_PENSION`, `LPG`  
+**Params:** `schemeId` - `PDS`, `PM_KISAN`, `OLD_AGE_PENSION`, `LPG`  
 **Query:** `days`, `start_date`, `end_date`
 
 **Response:**
@@ -1285,7 +1285,7 @@ async function analyticsGet<T>(
 ### Usage Examples
 
 ```typescript
-// Dashboard overview — last 7 days
+// Dashboard overview - last 7 days
 const overview = await analyticsGet<DashboardOverview>(
   "/api/analytics/dashboard/overview",
   { days: 7 },

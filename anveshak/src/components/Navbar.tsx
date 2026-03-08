@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { signOut } from '@/lib/auth'
 import Cookies from 'js-cookie'
@@ -123,7 +122,7 @@ export default function Navbar() {
 
       <nav className="top-bar">
         <Link href="/dashboard" className="top-bar-brand">
-          <Image src="/logo.png" alt="Anveshak" width={28} height={28} style={{ borderRadius: 6 }} />
+          <img src="/logo.png" alt="Anveshak" width={28} height={28} style={{ borderRadius: 6 }} />
           <div>
             <div className="brand-name">Anveshak</div>
             <div className="brand-sub">Government Monitoring Platform</div>

@@ -18,6 +18,7 @@ export const useDashboardData = () => {
     setOverview,
     setSchemes,
     setHeatmapData,
+    setHeatmapCells,
     setAlerts,
     setError,
     setLastFetched,
@@ -32,17 +33,19 @@ export const useDashboardData = () => {
     setError(null)
 
     try {
-      const [overviewRes, districtRes, schemesRes, anomaliesRes] = await Promise.all([
+      const [overviewRes, districtRes, schemesRes, anomaliesRes, heatmapRes] = await Promise.all([
         analytics.dashboard.overview({ days: 7 }),
         analytics.dashboard.districtSummary({ days: 7 }),
         analytics.schemes.list({ days: 7 }),
         analytics.anomalies.list({ days: 7, limit: 50 }),
+        analytics.anomalies.heatmap({ days: 7 }),
       ])
 
       const overview = overviewRes.data
       const districts = districtRes.data ?? []
       const schemes = schemesRes.data ?? []
       const anomalies = anomaliesRes.data ?? []
+      const heatmapCells = heatmapRes.data ?? []
 
       // Transform to frontend types
       const summary = adaptDashboardOverview(overview, districts, schemes)
@@ -53,6 +56,7 @@ export const useDashboardData = () => {
       setOverview(overview)
       setSchemes(schemes)
       setHeatmapData(heatmapData)
+      setHeatmapCells(heatmapCells)
       setAlerts(alerts)
       setLastFetched(now)
     } catch (err) {
@@ -61,7 +65,7 @@ export const useDashboardData = () => {
     } finally {
       setLoading(false)
     }
-  }, [lastFetched, setLoading, setSummary, setOverview, setSchemes, setHeatmapData, setAlerts, setError, setLastFetched])
+  }, [lastFetched, setLoading, setSummary, setOverview, setSchemes, setHeatmapData, setHeatmapCells, setAlerts, setError, setLastFetched])
 
   useEffect(() => {
     fetchAll()

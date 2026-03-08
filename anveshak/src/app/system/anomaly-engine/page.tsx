@@ -62,7 +62,7 @@ export default function AnomalyEnginePage() {
                 <div>
                   <p className="text-xs text-gray-500">Avg Confidence</p>
                   <p className="text-2xl font-bold text-green-600">
-                    {stats.anomalies.avg_confidence ? `${(parseFloat(stats.anomalies.avg_confidence) * 100).toFixed(1)}%` : '—'}
+                    {stats.anomalies.avg_confidence ? `${(parseFloat(stats.anomalies.avg_confidence) * 100).toFixed(1)}%` : '-'}
                   </p>
                 </div>
                 <div>
@@ -72,7 +72,7 @@ export default function AnomalyEnginePage() {
                 <div>
                   <p className="text-xs text-gray-500">Avg Latency</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {stats.openai_usage.avg_latency_ms ? `${parseFloat(stats.openai_usage.avg_latency_ms).toFixed(0)}ms` : '—'}
+                    {stats.openai_usage.avg_latency_ms ? `${parseFloat(stats.openai_usage.avg_latency_ms).toFixed(0)}ms` : '-'}
                   </p>
                 </div>
               </div>

@@ -63,7 +63,7 @@ app.use(
     max:      parseInt(process.env.RATE_LIMIT_MAX || "60"),
     standardHeaders: true,
     legacyHeaders:   false,
-    message: { success: false, error: "Too many requests — slow down" },
+    message: { success: false, error: "Too many requests - slow down" },
   })
 );
 
@@ -74,7 +74,7 @@ app.use(validateCognitoJwt);
 // Routes
 app.use("/api/anomaly", anomalyRoutes);
 
-// Health check — no auth required
+// Health check - no auth required
 app.get("/health", async (req, res) => {
   let dbStatus = "ok";
   try {
@@ -97,7 +97,7 @@ app.use((req, res) => {
   res.status(404).json({ success: false, error: `Route not found: ${req.method} ${req.path}` });
 });
 
-// Global error handler — must have 4 params for Express to treat it as error MW
+// Global error handler - must have 4 params for Express to treat it as error MW
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, _next) => {
   logger.error("Unhandled error", {
@@ -133,9 +133,9 @@ const server = app.listen(PORT, async () => {
   }
 });
 
-// Graceful shutdown — close HTTP, drain DB pool
+// Graceful shutdown - close HTTP, drain DB pool
 function shutdown(signal) {
-  logger.info(`${signal} received — shutting down gracefully`);
+  logger.info(`${signal} received - shutting down gracefully`);
   server.close(async () => {
     try {
       await pool.end();

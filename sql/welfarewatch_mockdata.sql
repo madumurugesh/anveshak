@@ -1,5 +1,5 @@
 -- ============================================================
--- WelfareWatch — Mock Data Population Script
+-- WelfareWatch - Mock Data Population Script
 -- Run AFTER welfarewatch_schema.sql (which already seeds:
 --   scheme_config, officers, beneficiaries, anomaly_records,
 --   alert_actions, daily_reports)
@@ -10,7 +10,7 @@
 
 
 -- ============================================================
--- ivr_sessions — 20 mock IVR call sessions
+-- ivr_sessions - 20 mock IVR call sessions
 -- ============================================================
 
 INSERT INTO ivr_sessions (call_sid, phone_hash, scheme_id, step, step1_digit, step1_ts, language, ttl, created_at) VALUES
@@ -48,45 +48,45 @@ INSERT INTO ivr_sessions (call_sid, phone_hash, scheme_id, step, step1_digit, st
 
 
 -- ============================================================
--- responses_dynamo_ref — Windowed response counters (3 days × 4 schemes × 2 pincodes)
+-- responses_dynamo_ref - Windowed response counters (3 days × 4 schemes × 2 pincodes)
 -- ============================================================
 
 INSERT INTO responses_dynamo_ref (pk, sk, yes_count, no_count, total, district, block, state, last_updated) VALUES
--- 2024-11-17 — PDS
+-- 2024-11-17 - PDS
 ('603001#PDS', '2024-11-17#10', 12, 4, 16, 'Chengalpattu', 'Madurantakam', 'Tamil Nadu', '2024-11-17 10:59:00+05:30'),
 ('603001#PDS', '2024-11-17#14', 18, 6, 24, 'Chengalpattu', 'Madurantakam', 'Tamil Nadu', '2024-11-17 14:59:00+05:30'),
 ('605001#PDS', '2024-11-17#10', 15, 5, 20, 'Villupuram', 'Vikravandi', 'Tamil Nadu', '2024-11-17 10:59:00+05:30'),
 ('605001#PDS', '2024-11-17#14', 20, 8, 28, 'Villupuram', 'Vikravandi', 'Tamil Nadu', '2024-11-17 14:59:00+05:30'),
 
--- 2024-11-18 — PDS
+-- 2024-11-18 - PDS
 ('603001#PDS', '2024-11-18#10', 14, 5, 19, 'Chengalpattu', 'Madurantakam', 'Tamil Nadu', '2024-11-18 10:59:00+05:30'),
 ('603001#PDS', '2024-11-18#14', 16, 7, 23, 'Chengalpattu', 'Madurantakam', 'Tamil Nadu', '2024-11-18 14:59:00+05:30'),
 ('605001#PDS', '2024-11-18#10', 13, 6, 19, 'Villupuram', 'Vikravandi', 'Tamil Nadu', '2024-11-18 10:59:00+05:30'),
 ('605001#PDS', '2024-11-18#14', 17, 9, 26, 'Villupuram', 'Vikravandi', 'Tamil Nadu', '2024-11-18 14:59:00+05:30'),
 
--- 2024-11-19 — PDS (anomaly day — 605001 has high NO)
+-- 2024-11-19 - PDS (anomaly day - 605001 has high NO)
 ('603001#PDS', '2024-11-19#10', 15, 5, 20, 'Chengalpattu', 'Madurantakam', 'Tamil Nadu', '2024-11-19 10:59:00+05:30'),
 ('603001#PDS', '2024-11-19#14', 19, 6, 25, 'Chengalpattu', 'Madurantakam', 'Tamil Nadu', '2024-11-19 14:59:00+05:30'),
 ('605001#PDS', '2024-11-19#10', 8, 32, 40, 'Villupuram', 'Vikravandi', 'Tamil Nadu', '2024-11-19 10:59:00+05:30'),
 ('605001#PDS', '2024-11-19#14', 23, 79, 102, 'Villupuram', 'Vikravandi', 'Tamil Nadu', '2024-11-19 14:59:00+05:30'),
 
--- 2024-11-19 — PM_KISAN
+-- 2024-11-19 - PM_KISAN
 ('603003#PM_KISAN', '2024-11-19#10', 10, 8, 18, 'Chengalpattu', 'Madurantakam', 'Tamil Nadu', '2024-11-19 10:59:00+05:30'),
 ('603003#PM_KISAN', '2024-11-19#14', 14, 12, 26, 'Chengalpattu', 'Madurantakam', 'Tamil Nadu', '2024-11-19 14:59:00+05:30'),
 ('605004#PM_KISAN', '2024-11-19#10', 6, 14, 20, 'Villupuram', 'Vikravandi', 'Tamil Nadu', '2024-11-19 10:59:00+05:30'),
 ('605004#PM_KISAN', '2024-11-19#14', 10, 22, 32, 'Villupuram', 'Vikravandi', 'Tamil Nadu', '2024-11-19 14:59:00+05:30'),
 
--- 2024-11-19 — OLD_AGE_PENSION
+-- 2024-11-19 - OLD_AGE_PENSION
 ('603005#OLD_AGE_PENSION', '2024-11-19#10', 6, 2, 8, 'Chengalpattu', 'Madurantakam', 'Tamil Nadu', '2024-11-19 10:59:00+05:30'),
 ('605007#OLD_AGE_PENSION', '2024-11-19#10', 5, 1, 6, 'Villupuram', 'Vikravandi', 'Tamil Nadu', '2024-11-19 10:59:00+05:30'),
 
--- 2024-11-19 — LPG
+-- 2024-11-19 - LPG
 ('603007#LPG', '2024-11-19#10', 8, 2, 10, 'Chengalpattu', 'Madurantakam', 'Tamil Nadu', '2024-11-19 10:59:00+05:30'),
 ('605010#LPG', '2024-11-19#10', 7, 1, 8, 'Villupuram', 'Vikravandi', 'Tamil Nadu', '2024-11-19 10:59:00+05:30');
 
 
 -- ============================================================
--- response_dedup — 30 dedup records (one response per beneficiary per day)
+-- response_dedup - 30 dedup records (one response per beneficiary per day)
 -- ============================================================
 
 INSERT INTO response_dedup (pk, response, channel, call_sid, timestamp, ttl) VALUES
@@ -130,11 +130,11 @@ INSERT INTO response_dedup (pk, response, channel, call_sid, timestamp, ttl) VAL
 
 
 -- ============================================================
--- baselines_cache — 7-day rolling baselines for key pincodes
+-- baselines_cache - 7-day rolling baselines for key pincodes
 -- ============================================================
 
 INSERT INTO baselines_cache (pk, sk, no_pct, yes_pct, total, ttl) VALUES
--- 603001#PDS — 7-day window
+-- 603001#PDS - 7-day window
 ('603001#PDS', '2024-11-13', 0.2500, 0.7500, 32, 1732089600),
 ('603001#PDS', '2024-11-14', 0.2800, 0.7200, 29, 1732089600),
 ('603001#PDS', '2024-11-15', 0.2200, 0.7800, 36, 1732089600),
@@ -143,7 +143,7 @@ INSERT INTO baselines_cache (pk, sk, no_pct, yes_pct, total, ttl) VALUES
 ('603001#PDS', '2024-11-18', 0.2857, 0.7143, 42, 1732089600),
 ('603001#PDS', '2024-11-19', 0.2444, 0.7556, 45, 1732089600),
 
--- 605001#PDS — 7-day window (anomaly on 11-19)
+-- 605001#PDS - 7-day window (anomaly on 11-19)
 ('605001#PDS', '2024-11-13', 0.2800, 0.7200, 25, 1732089600),
 ('605001#PDS', '2024-11-14', 0.3200, 0.6800, 28, 1732089600),
 ('605001#PDS', '2024-11-15', 0.3000, 0.7000, 30, 1732089600),
@@ -152,7 +152,7 @@ INSERT INTO baselines_cache (pk, sk, no_pct, yes_pct, total, ttl) VALUES
 ('605001#PDS', '2024-11-18', 0.3333, 0.6667, 45, 1732089600),
 ('605001#PDS', '2024-11-19', 0.7800, 0.2200, 142, 1732089600),  -- ANOMALY DAY
 
--- 605004#PM_KISAN — 7-day window
+-- 605004#PM_KISAN - 7-day window
 ('605004#PM_KISAN', '2024-11-13', 0.2000, 0.8000, 15, 1732089600),
 ('605004#PM_KISAN', '2024-11-14', 0.1800, 0.8200, 18, 1732089600),
 ('605004#PM_KISAN', '2024-11-15', 0.2200, 0.7800, 20, 1732089600),
@@ -161,7 +161,7 @@ INSERT INTO baselines_cache (pk, sk, no_pct, yes_pct, total, ttl) VALUES
 ('605004#PM_KISAN', '2024-11-18', 0.2300, 0.7700, 19, 1732089600),
 ('605004#PM_KISAN', '2024-11-19', 0.4100, 0.5900, 52, 1732089600),  -- elevated
 
--- 603005#OLD_AGE_PENSION — 7-day window
+-- 603005#OLD_AGE_PENSION - 7-day window
 ('603005#OLD_AGE_PENSION', '2024-11-13', 0.1500, 0.8500, 8, 1732089600),
 ('603005#OLD_AGE_PENSION', '2024-11-14', 0.1200, 0.8800, 10, 1732089600),
 ('603005#OLD_AGE_PENSION', '2024-11-15', 0.1800, 0.8200, 9, 1732089600),
@@ -172,7 +172,7 @@ INSERT INTO baselines_cache (pk, sk, no_pct, yes_pct, total, ttl) VALUES
 
 
 -- ============================================================
--- rejected_responses — 12 mock rejected calls/responses
+-- rejected_responses - 12 mock rejected calls/responses
 -- ============================================================
 
 INSERT INTO rejected_responses (call_sid, phone_hash, scheme_id, rejection_reason, raw_digit, rejected_at) VALUES
@@ -198,47 +198,47 @@ INSERT INTO rejected_responses (call_sid, phone_hash, scheme_id, rejection_reaso
 
 
 -- ============================================================
--- daily_responses — Aggregated daily data (3 days × multiple pincodes)
+-- daily_responses - Aggregated daily data (3 days × multiple pincodes)
 -- ============================================================
 
 INSERT INTO daily_responses (date, pincode, scheme_id, block, district, state, yes_count, no_count, total_responses, no_pct, active_beneficiaries, response_rate) VALUES
--- 2024-11-17 — Normal day
+-- 2024-11-17 - Normal day
 ('2024-11-17', '603001', 'PDS', 'Madurantakam', 'Chengalpattu', 'Tamil Nadu', 30, 10, 40, 0.2500, 150, 0.2667),
 ('2024-11-17', '603002', 'PDS', 'Madurantakam', 'Chengalpattu', 'Tamil Nadu', 28, 8,  36, 0.2222, 140, 0.2571),
 ('2024-11-17', '605001', 'PDS', 'Vikravandi',   'Villupuram',   'Tamil Nadu', 35, 13, 48, 0.2708, 210, 0.2286),
 ('2024-11-17', '605002', 'PDS', 'Vikravandi',   'Villupuram',   'Tamil Nadu', 32, 10, 42, 0.2381, 180, 0.2333),
 
--- 2024-11-18 — Normal day
+-- 2024-11-18 - Normal day
 ('2024-11-18', '603001', 'PDS', 'Madurantakam', 'Chengalpattu', 'Tamil Nadu', 30, 12, 42, 0.2857, 150, 0.2800),
 ('2024-11-18', '603002', 'PDS', 'Madurantakam', 'Chengalpattu', 'Tamil Nadu', 25, 10, 35, 0.2857, 140, 0.2500),
 ('2024-11-18', '605001', 'PDS', 'Vikravandi',   'Villupuram',   'Tamil Nadu', 30, 15, 45, 0.3333, 210, 0.2143),
 ('2024-11-18', '605002', 'PDS', 'Vikravandi',   'Villupuram',   'Tamil Nadu', 28, 12, 40, 0.3000, 180, 0.2222),
 
--- 2024-11-19 — ANOMALY day (605001 PDS spikes)
+-- 2024-11-19 - ANOMALY day (605001 PDS spikes)
 ('2024-11-19', '603001', 'PDS', 'Madurantakam', 'Chengalpattu', 'Tamil Nadu', 34, 11, 45, 0.2444, 150, 0.3000),
 ('2024-11-19', '603002', 'PDS', 'Madurantakam', 'Chengalpattu', 'Tamil Nadu', 26, 9,  35, 0.2571, 140, 0.2500),
 ('2024-11-19', '605001', 'PDS', 'Vikravandi',   'Villupuram',   'Tamil Nadu', 31, 111,142, 0.7817, 210, 0.6762),
 ('2024-11-19', '605002', 'PDS', 'Vikravandi',   'Villupuram',   'Tamil Nadu', 30, 14, 44, 0.3182, 180, 0.2444),
 
--- 2024-11-19 — PM_KISAN (district-wide elevated NO)
+-- 2024-11-19 - PM_KISAN (district-wide elevated NO)
 ('2024-11-19', '603003', 'PM_KISAN', 'Madurantakam', 'Chengalpattu', 'Tamil Nadu', 24, 20, 44, 0.4545, 120, 0.3667),
 ('2024-11-19', '605004', 'PM_KISAN', 'Vikravandi',   'Villupuram',   'Tamil Nadu', 16, 36, 52, 0.6923, 100, 0.5200),
 ('2024-11-19', '605005', 'PM_KISAN', 'Vikravandi',   'Villupuram',   'Tamil Nadu', 18, 30, 48, 0.6250, 110, 0.4364),
 ('2024-11-19', '605006', 'PM_KISAN', 'Vikravandi',   'Villupuram',   'Tamil Nadu', 12, 22, 34, 0.6471, 90,  0.3778),
 
--- 2024-11-19 — OLD_AGE_PENSION (silence in 603002)
+-- 2024-11-19 - OLD_AGE_PENSION (silence in 603002)
 ('2024-11-19', '603005', 'OLD_AGE_PENSION', 'Madurantakam', 'Chengalpattu', 'Tamil Nadu', 6, 2, 8, 0.2500, 30, 0.2667),
 ('2024-11-19', '603006', 'OLD_AGE_PENSION', 'Madurantakam', 'Chengalpattu', 'Tamil Nadu', 3, 1, 4, 0.2500, 87, 0.0460),
 ('2024-11-19', '605007', 'OLD_AGE_PENSION', 'Vikravandi',   'Villupuram',   'Tamil Nadu', 5, 1, 6, 0.1667, 40, 0.1500),
 
--- 2024-11-19 — LPG (normal)
+-- 2024-11-19 - LPG (normal)
 ('2024-11-19', '603007', 'LPG', 'Madurantakam', 'Chengalpattu', 'Tamil Nadu', 8, 2, 10, 0.2000, 50, 0.2000),
 ('2024-11-19', '605010', 'LPG', 'Vikravandi',   'Villupuram',   'Tamil Nadu', 7, 1,  8, 0.1250, 45, 0.1778),
 ('2024-11-19', '605011', 'LPG', 'Vikravandi',   'Villupuram',   'Tamil Nadu', 6, 2,  8, 0.2500, 40, 0.2000);
 
 
 -- ============================================================
--- district_baselines — Weekly computed baselines
+-- district_baselines - Weekly computed baselines
 -- ============================================================
 
 INSERT INTO district_baselines (district, block, scheme_id, computed_date, avg_no_pct, std_dev_no_pct, avg_total_responses, avg_response_rate, sample_days) VALUES
@@ -262,7 +262,7 @@ INSERT INTO district_baselines (district, block, scheme_id, computed_date, avg_n
 
 
 -- ============================================================
--- ai_prompt_log — 3 logs matching the 3 seed anomaly_records
+-- ai_prompt_log - 3 logs matching the 3 seed anomaly_records
 -- ============================================================
 
 INSERT INTO ai_prompt_log (
@@ -275,7 +275,7 @@ INSERT INTO ai_prompt_log (
     'ai-anomaly-engine', 'gpt-4o-mini',
     820, 195, 1015, 0.000240,
     '{"id":"aaaaaaaa-0000-0000-0000-000000000001","date":"2024-11-19","detector_type":"NO_SPIKE","level":"PINCODE","pincode":"605001","block":"Vikravandi","district":"Villupuram","state":"Tamil Nadu","scheme_id":"PDS","severity":"CRITICAL","score":4.2,"no_pct":0.78,"baseline_no_pct":0.31,"total_responses":142,"affected_beneficiaries":210}',
-    '{"ai_classification":"SUPPLY_FAILURE","ai_confidence":0.91,"ai_reasoning":"NO% spiked to 78% vs 7-day baseline of 31% — z-score 4.2 indicates a non-random event. Pattern consistent with distribution point not opening.","ai_action":"Conduct immediate field visit to FPS store at 605001. Verify stock availability and dealer attendance.","ai_action_ta":"605001 இல் உள்ள FPS கடைக்கு உடனடி கள வருகை மேற்கொள்ளவும். பங்கு கிடைக்கும் தன்மையை சரிபார்க்கவும்.","ai_urgency":"TODAY","signals_used":["z_score_4.2","no_pct_0.78","distribution_window_active"],"confidence_adjustments":[{"factor":"high_sample_size","delta":0.05},{"factor":"score_exceeds_2x_threshold","delta":0.05}]}',
+    '{"ai_classification":"SUPPLY_FAILURE","ai_confidence":0.91,"ai_reasoning":"NO% spiked to 78% vs 7-day baseline of 31% - z-score 4.2 indicates a non-random event. Pattern consistent with distribution point not opening.","ai_action":"Conduct immediate field visit to FPS store at 605001. Verify stock availability and dealer attendance.","ai_action_ta":"605001 இல் உள்ள FPS கடைக்கு உடனடி கள வருகை மேற்கொள்ளவும். பங்கு கிடைக்கும் தன்மையை சரிபார்க்கவும்.","ai_urgency":"TODAY","signals_used":["z_score_4.2","no_pct_0.78","distribution_window_active"],"confidence_adjustments":[{"factor":"high_sample_size","delta":0.05},{"factor":"score_exceeds_2x_threshold","delta":0.05}]}',
     TRUE, NULL, 1842,
     '2024-11-19 14:29:50+05:30'
 ),
@@ -293,14 +293,14 @@ INSERT INTO ai_prompt_log (
     'ai-anomaly-engine', 'gpt-4o-mini',
     850, 190, 1040, 0.000242,
     '{"id":"aaaaaaaa-0000-0000-0000-000000000003","date":"2024-11-18","detector_type":"DISTRICT_ROLLUP","level":"DISTRICT","pincode":null,"block":null,"district":"Villupuram","state":"Tamil Nadu","scheme_id":"PM_KISAN","severity":"HIGH","score":0.41,"no_pct":0.41,"baseline_no_pct":0.22,"total_responses":1840,"affected_beneficiaries":3200}',
-    '{"ai_classification":"SUPPLY_FAILURE","ai_confidence":0.77,"ai_reasoning":"Three blocks exceeded NO% threshold simultaneously — suggests a district-level disbursement delay rather than isolated incidents.","ai_action":"Escalate to District Collector. Review PM Kisan instalment release status from PFMS portal for Villupuram.","ai_action_ta":"மாவட்ட ஆட்சியரிடம் தெரிவிக்கவும். வில்லுபுரத்திற்கான PFMS போர்ட்டலில் PM கிசான் தவணை வெளியீட்டு நிலையை சரிபார்க்கவும்.","ai_urgency":"TODAY","signals_used":["district_rollup_3_blocks","no_pct_0.41","baseline_deviation"],"confidence_adjustments":[{"factor":"multiple_blocks_corroborate","delta":0.05}]}',
+    '{"ai_classification":"SUPPLY_FAILURE","ai_confidence":0.77,"ai_reasoning":"Three blocks exceeded NO% threshold simultaneously - suggests a district-level disbursement delay rather than isolated incidents.","ai_action":"Escalate to District Collector. Review PM Kisan instalment release status from PFMS portal for Villupuram.","ai_action_ta":"மாவட்ட ஆட்சியரிடம் தெரிவிக்கவும். வில்லுபுரத்திற்கான PFMS போர்ட்டலில் PM கிசான் தவணை வெளியீட்டு நிலையை சரிபார்க்கவும்.","ai_urgency":"TODAY","signals_used":["district_rollup_3_blocks","no_pct_0.41","baseline_deviation"],"confidence_adjustments":[{"factor":"multiple_blocks_corroborate","delta":0.05}]}',
     TRUE, NULL, 1650,
     '2024-11-18 21:59:50+05:30'
 );
 
 
 -- ============================================================
--- notification_log — Notifications sent for anomalies & reports
+-- notification_log - Notifications sent for anomalies & reports
 -- ============================================================
 
 INSERT INTO notification_log (
@@ -377,7 +377,7 @@ INSERT INTO notification_log (
 
 
 -- ============================================================
--- dashboard_sessions — 6 mock login sessions
+-- dashboard_sessions - 6 mock login sessions
 -- ============================================================
 
 INSERT INTO dashboard_sessions (officer_id, cognito_token_jti, ip_address, user_agent, login_at, last_active_at, logout_at) VALUES

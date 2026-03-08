@@ -75,7 +75,7 @@ function verifySignature(token, pem) {
 /**
  * Middleware: Validate Cognito JWT from Authorization header.
  * If Cognito is not configured, skips validation (passes through).
- * Works alongside X-Engine-Secret — either auth method is accepted.
+ * Works alongside X-Engine-Secret - either auth method is accepted.
  */
 function validateCognitoJwt(req, res, next) {
   // If Cognito not configured, skip JWT validation
@@ -85,7 +85,7 @@ function validateCognitoJwt(req, res, next) {
 
   const authHeader = req.headers["authorization"];
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    // No JWT present — let other auth (engine secret) handle it
+    // No JWT present - let other auth (engine secret) handle it
     return next();
   }
 

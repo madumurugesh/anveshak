@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ============================================================
-# WelfareWatch Analytics Engine — Endpoint Test Script
+# WelfareWatch Analytics Engine - Endpoint Test Script
 # ============================================================
 # Usage:
 #   chmod +x test_endpoints.sh
@@ -64,7 +64,7 @@ test_endpoint() {
 }
 
 echo "============================================================"
-echo "  WelfareWatch Analytics Engine — Endpoint Tests"
+echo "  WelfareWatch Analytics Engine - Endpoint Tests"
 echo "  Base URL: $BASE_URL"
 echo "============================================================"
 
@@ -174,7 +174,7 @@ if [ -n "$REPORT_ID" ]; then
     "$BASE_URL/api/analytics/reports/$REPORT_ID/pdf"
 else
   echo ""
-  echo "⚠️  Skipping Report Detail — no reports found to get an ID from."
+  echo "⚠️  Skipping Report Detail - no reports found to get an ID from."
   TOTAL=$((TOTAL + 1))
   FAIL=$((FAIL + 1))
 fi
@@ -245,19 +245,19 @@ test_endpoint \
   "$BASE_URL/api/analytics/schemes?days=30"
 
 test_endpoint \
-  "Scheme Detail — PDS" \
+  "Scheme Detail - PDS" \
   "$BASE_URL/api/analytics/schemes/PDS?days=30"
 
 test_endpoint \
-  "Scheme Detail — PM_KISAN" \
+  "Scheme Detail - PM_KISAN" \
   "$BASE_URL/api/analytics/schemes/PM_KISAN?days=30"
 
 test_endpoint \
-  "Scheme Detail — OLD_AGE_PENSION" \
+  "Scheme Detail - OLD_AGE_PENSION" \
   "$BASE_URL/api/analytics/schemes/OLD_AGE_PENSION?days=30"
 
 test_endpoint \
-  "Scheme Detail — LPG" \
+  "Scheme Detail - LPG" \
   "$BASE_URL/api/analytics/schemes/LPG?days=30"
 
 # ═══════════════════════════════════════════════════════════════
@@ -324,10 +324,10 @@ TOTAL=$((TOTAL + 1))
 HTTP_CODE=$(curl -s -o /tmp/analytics_response.json -w "%{http_code}" \
   "$BASE_URL/api/analytics/dashboard/overview")
 if [ "$HTTP_CODE" = "401" ]; then
-  printf "✅ PASS — Correctly returned 401\n"
+  printf "✅ PASS - Correctly returned 401\n"
   PASS=$((PASS + 1))
 else
-  printf "❌ FAIL — Expected 401, got %s\n" "$HTTP_CODE"
+  printf "❌ FAIL - Expected 401, got %s\n" "$HTTP_CODE"
   FAIL=$((FAIL + 1))
 fi
 
@@ -339,10 +339,10 @@ HTTP_CODE=$(curl -s -o /tmp/analytics_response.json -w "%{http_code}" \
   -H "X-Engine-Secret: wrong-secret" \
   "$BASE_URL/api/analytics/dashboard/overview")
 if [ "$HTTP_CODE" = "403" ]; then
-  printf "✅ PASS — Correctly returned 403\n"
+  printf "✅ PASS - Correctly returned 403\n"
   PASS=$((PASS + 1))
 else
-  printf "❌ FAIL — Expected 403, got %s\n" "$HTTP_CODE"
+  printf "❌ FAIL - Expected 403, got %s\n" "$HTTP_CODE"
   FAIL=$((FAIL + 1))
 fi
 

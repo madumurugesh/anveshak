@@ -5,7 +5,7 @@ const { validateAnomaly, validateBatch, validateEngineSecret } = require("../mid
 const pool = require("../config/db");
 const logger = require("../config/logger");
 
-// Async handler wrapper — catches thrown errors and forwards to Express error MW
+// Async handler wrapper - catches thrown errors and forwards to Express error MW
 const asyncHandler = (fn) => (req, res, next) =>
   Promise.resolve(fn(req, res, next)).catch(next);
 
@@ -144,7 +144,7 @@ router.get("/:id/result", validateEngineSecret, asyncHandler(async (req, res) =>
 }));
 
 // GET /api/anomaly/stats
-// AI processing stats — useful for dashboard and cost tracking
+// AI processing stats - useful for dashboard and cost tracking
 router.get("/stats", validateEngineSecret, asyncHandler(async (req, res) => {
   try {
     const { rows } = await pool.query(`

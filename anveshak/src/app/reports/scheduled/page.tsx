@@ -55,7 +55,7 @@ export default function ScheduledReportsPage() {
                       )}
                     </div>
                     <h3 className="text-gray-900 font-semibold mt-2">
-                      {r.district} Report — {r.report_date}
+                      {r.district} Report - {r.report_date}
                     </h3>
                   </div>
                   {r.pdf_s3_key && (

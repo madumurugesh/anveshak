@@ -1,4 +1,4 @@
-# WelfareWatch — AI Anomaly Engine API Documentation
+# WelfareWatch - AI Anomaly Engine API Documentation
 
 > **Base URL:** `http://localhost:3000` (dev) / `https://your-domain.com` (prod)
 >
@@ -54,7 +54,7 @@ All `/api/anomaly/*` endpoints require the **`X-Engine-Secret`** header.
 | ----------------- | ------------------------------------------- | ------------------------------------- |
 | `X-Engine-Secret` | Server-configured secret string             | **Yes** (all `/api/anomaly/*` routes) |
 | `Content-Type`    | `application/json`                          | **Yes** (POST routes)                 |
-| `X-Request-ID`    | UUID (optional — auto-generated if missing) | No                                    |
+| `X-Request-ID`    | UUID (optional - auto-generated if missing) | No                                    |
 
 ### Frontend implementation
 
@@ -96,7 +96,7 @@ const headers = {
 
 | Header                  | Description                                          |
 | ----------------------- | ---------------------------------------------------- |
-| `X-Request-ID`          | Unique request trace ID — send this with bug reports |
+| `X-Request-ID`          | Unique request trace ID - send this with bug reports |
 | `X-RateLimit-Remaining` | Requests remaining in current window                 |
 | `Content-Encoding`      | `gzip` (responses are compressed)                    |
 
@@ -184,7 +184,7 @@ When exceeded, you receive:
 
 ```json
 // HTTP 429
-{ "success": false, "error": "Too many requests — slow down" }
+{ "success": false, "error": "Too many requests - slow down" }
 ```
 
 Use exponential backoff or respect the `Retry-After` header.
@@ -203,7 +203,7 @@ Check if the service and its dependencies are alive. **No authentication require
 GET /health
 ```
 
-#### Response — 200 OK
+#### Response - 200 OK
 
 ```json
 {
@@ -216,7 +216,7 @@ GET /health
 }
 ```
 
-#### Response — 503 Service Unavailable
+#### Response - 503 Service Unavailable
 
 ```json
 {
@@ -309,9 +309,9 @@ POST /api/anomaly/classify
 | `baseline_no_pct`        | number      | No          | `0.0` – `1.0` (null for DUPLICATE_BENEFICIARY)                            |
 | `total_responses`        | integer     | ✅          | `>= 0`                                                                    |
 | `affected_beneficiaries` | integer     | ✅          | `>= 0`                                                                    |
-| `raw_data`               | object      | ✅          | Free-form object — full detector output                                   |
+| `raw_data`               | object      | ✅          | Free-form object - full detector output                                   |
 
-#### Response — 200 OK
+#### Response - 200 OK
 
 ```json
 {
@@ -320,7 +320,7 @@ POST /api/anomaly/classify
   "result": {
     "ai_classification": "SUPPLY_FAILURE",
     "ai_confidence": 0.91,
-    "ai_reasoning": "NO% spiked to 81% vs 7-day baseline of 29% — z-score 4.8 indicates a non-random event. Pattern consistent with FPS distribution point not opening.",
+    "ai_reasoning": "NO% spiked to 81% vs 7-day baseline of 29% - z-score 4.8 indicates a non-random event. Pattern consistent with FPS distribution point not opening.",
     "ai_action": "Conduct immediate field visit to FPS store at 605001. Verify stock availability and dealer attendance.",
     "ai_action_ta": "605001 இல் உள்ள FPS கடைக்கு உடனடி கள வருகை மேற்கொள்ளவும். பங்கு கிடைக்கும் தன்மையை சரிபார்க்கவும்.",
     "ai_urgency": "TODAY",
@@ -343,7 +343,7 @@ POST /api/anomaly/classify
 }
 ```
 
-#### Response — 400 Validation Error
+#### Response - 400 Validation Error
 
 ```json
 {
@@ -356,7 +356,7 @@ POST /api/anomaly/classify
 }
 ```
 
-#### Response — 500 Server Error
+#### Response - 500 Server Error
 
 ```json
 {
@@ -416,7 +416,7 @@ POST /api/anomaly/classify/batch
 {
   "anomalies": [
     {
-      /* anomaly object 1 — same schema as /classify */
+      /* anomaly object 1 - same schema as /classify */
     },
     {
       /* anomaly object 2 */
@@ -434,7 +434,7 @@ POST /api/anomaly/classify/batch
 | Processing order    | Sequential                            |
 | Delay between calls | 200 ms                                |
 
-#### Response — 200 OK
+#### Response - 200 OK
 
 ```json
 {
@@ -499,7 +499,7 @@ if (summary.failed > 0) {
 
 Pulls all anomaly records where `ai_classification IS NULL OR = 'PENDING'` from the database, ordered by severity (CRITICAL first), and classifies them.
 
-This is the **primary automated pipeline trigger** — call it on a schedule (e.g., every 5 minutes via cron or the dashboard).
+This is the **primary automated pipeline trigger** - call it on a schedule (e.g., every 5 minutes via cron or the dashboard).
 
 ```
 POST /api/anomaly/classify/pending?limit=5
@@ -515,7 +515,7 @@ POST /api/anomaly/classify/pending?limit=5
 
 None required.
 
-#### Response — 200 OK (records found)
+#### Response - 200 OK (records found)
 
 ```json
 {
@@ -525,7 +525,7 @@ None required.
 }
 ```
 
-#### Response — 200 OK (no pending records)
+#### Response - 200 OK (no pending records)
 
 ```json
 {
@@ -566,7 +566,7 @@ GET /api/anomaly/:id/result
 | ----- | ---- | ----------------- |
 | `id`  | UUID | Anomaly record ID |
 
-#### Response — 200 OK
+#### Response - 200 OK
 
 ```json
 {
@@ -589,7 +589,7 @@ GET /api/anomaly/:id/result
 }
 ```
 
-#### Response — 404 Not Found
+#### Response - 404 Not Found
 
 ```json
 {
@@ -624,7 +624,7 @@ Returns a 7-day summary of anomaly classification counts and OpenAI API usage me
 GET /api/anomaly/stats
 ```
 
-#### Response — 200 OK
+#### Response - 200 OK
 
 ```json
 {
@@ -694,10 +694,10 @@ const avgLatency = parseInt(openai_usage.avg_latency_ms);
 
 | Value             | Meaning                                                    |
 | ----------------- | ---------------------------------------------------------- |
-| `SUPPLY_FAILURE`  | Benefit not delivered — supply-side issue                  |
-| `DEMAND_COLLAPSE` | Beneficiaries stopped claiming — not a delivery failure    |
+| `SUPPLY_FAILURE`  | Benefit not delivered - supply-side issue                  |
+| `DEMAND_COLLAPSE` | Beneficiaries stopped claiming - not a delivery failure    |
 | `FRAUD_PATTERN`   | Statistical signature consistent with fabricated responses |
-| `DATA_ARTIFACT`   | Technical/data issue — not a real welfare failure          |
+| `DATA_ARTIFACT`   | Technical/data issue - not a real welfare failure          |
 | `PENDING`         | Insufficient data to classify (confidence < 0.50)          |
 
 ### AI Urgency
@@ -729,7 +729,7 @@ const avgLatency = parseInt(openai_usage.avg_latency_ms);
 
 | Status          | Meaning                           |
 | --------------- | --------------------------------- |
-| `NEW`           | Just detected — not yet reviewed  |
+| `NEW`           | Just detected - not yet reviewed  |
 | `ASSIGNED`      | Assigned to a field officer       |
 | `INVESTIGATING` | Officer is actively investigating |
 | `FIELD_VISIT`   | Physical verification underway    |

@@ -10,6 +10,8 @@ import DashboardShell from '@/components/DashboardShell'
 import AlertsPanel from '@/components/AlertsPanel'
 import SchemeChart from '@/components/SchemeChart'
 import SkeletonLoader from '@/components/SkeletonLoader'
+import { SCHEME_META } from '@/app/geo/hotspot-map/page'
+import type { AnalyticsHeatmapCell } from '@/types/api'
 import {
   ResponsiveContainer,
   PieChart,
@@ -18,7 +20,7 @@ import {
   Tooltip,
 } from 'recharts'
 
-const HeatmapMap = dynamic(() => import('@/components/HeatmapMap'), {
+const LeafletMap = dynamic(() => import('@/components/LeafletMap'), {
   ssr: false,
   loading: () => (
     <div className="bg-gray-50 rounded-lg h-[300px] animate-pulse border border-gray-100" />
@@ -51,8 +53,10 @@ export default function DashboardPage() {
   const overview = useDashboardStore((s) => s.overview)
   const schemes = useDashboardStore((s) => s.schemes)
   const heatmapData = useDashboardStore((s) => s.heatmapData)
+  const heatmapCells = useDashboardStore((s) => s.heatmapCells)
   const alerts = useDashboardStore((s) => s.alerts)
   const [timeRange, setTimeRange] = useState<TimeRange>('7d')
+  const [selectedCell, setSelectedCell] = useState<AnalyticsHeatmapCell | null>(null)
 
   const ranges: { key: TimeRange; label: string }[] = [
     { key: '7d', label: '7D' },
@@ -235,7 +239,12 @@ export default function DashboardPage() {
                   <div style={{ padding: '0 16px 14px' }}>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 180px', gap: 16 }}>
                       <div style={{ minHeight: 280 }}>
-                        <HeatmapMap />
+                        <LeafletMap
+                          cells={heatmapCells}
+                          selected={selectedCell}
+                          onSelect={setSelectedCell}
+                          schemeMap={SCHEME_META}
+                        />
                       </div>
                       <div>
                         <p className="section-label">Top 5 Districts</p>
@@ -444,7 +453,7 @@ export default function DashboardPage() {
                               {anomalies > 0 ? (
                                 <span className="badge badge-accent">{anomalies}</span>
                               ) : (
-                                <span style={{ fontSize: 11, color: 'var(--green-600)', fontWeight: 500 }}>—</span>
+                                <span style={{ fontSize: 11, color: 'var(--green-600)', fontWeight: 500 }}>-</span>
                               )}
                             </td>
                             <td style={{ padding: '8px 8px' }}>
