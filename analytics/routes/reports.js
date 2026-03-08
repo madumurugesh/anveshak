@@ -13,10 +13,58 @@ const PRESIGN_EXPIRES = parseInt(process.env.S3_PRESIGN_EXPIRES || "3600");
 const asyncHandler = (fn) => (req, res, next) =>
   Promise.resolve(fn(req, res, next)).catch(next);
 
-// ─────────────────────────────────────────────────────────────
-// GET /api/analytics/reports
-// List daily reports with pagination and filters
-// ─────────────────────────────────────────────────────────────
+/**
+ * @swagger
+ * tags:
+ *   - name: Reports
+ *     description: Daily district reports — listing, detail, PDF download, per-district
+ */
+
+/**
+ * @swagger
+ * /api/analytics/reports:
+ *   get:
+ *     tags: [Reports]
+ *     summary: List daily reports
+ *     description: Paginated list of daily reports with optional date and district filters.
+ *     parameters:
+ *       - $ref: '#/components/parameters/Page'
+ *       - $ref: '#/components/parameters/Limit'
+ *       - $ref: '#/components/parameters/Days'
+ *       - $ref: '#/components/parameters/StartDate'
+ *       - $ref: '#/components/parameters/EndDate'
+ *       - $ref: '#/components/parameters/District'
+ *     responses:
+ *       200:
+ *         description: Paginated report list
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 pagination: { $ref: '#/components/schemas/Pagination' }
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id: { type: string, format: uuid }
+ *                       district: { type: string }
+ *                       report_date: { type: string, format: date }
+ *                       total_responses: { type: integer }
+ *                       total_anomalies: { type: integer }
+ *                       critical_count: { type: integer }
+ *                       high_count: { type: integer }
+ *                       medium_count: { type: integer }
+ *                       schemes_summary: { type: object }
+ *                       best_performing_block: { type: string, nullable: true }
+ *                       worst_performing_pincode: { type: string, nullable: true }
+ *                       pdf_s3_key: { type: string, nullable: true }
+ *                       email_sent: { type: boolean }
+ *                       email_sent_at: { type: string, format: date-time, nullable: true }
+ *                       generated_at: { type: string, format: date-time }
+ */
 router.get(
   "/",
   validateEngineSecret,
@@ -74,10 +122,39 @@ router.get(
   })
 );
 
-// ─────────────────────────────────────────────────────────────
-// GET /api/analytics/reports/:id/pdf
-// Generate a presigned S3 URL for the report PDF
-// ─────────────────────────────────────────────────────────────
+/**
+ * @swagger
+ * /api/analytics/reports/{id}/pdf:
+ *   get:
+ *     tags: [Reports]
+ *     summary: Download report PDF
+ *     description: Generate a presigned S3 URL for the report PDF.
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema: { type: string, format: uuid }
+ *         description: Report UUID
+ *     responses:
+ *       200:
+ *         description: Presigned download URL
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     report_id: { type: string }
+ *                     district: { type: string }
+ *                     report_date: { type: string, format: date }
+ *                     download_url: { type: string, format: uri }
+ *                     expires_in: { type: integer }
+ *       404:
+ *         description: Report or PDF not found
+ */
 router.get(
   "/:id/pdf",
   validateEngineSecret,
@@ -120,10 +197,38 @@ router.get(
   })
 );
 
-// ─────────────────────────────────────────────────────────────
-// GET /api/analytics/reports/:id
-// Full report detail with narrative and scheme breakdown
-// ─────────────────────────────────────────────────────────────
+/**
+ * @swagger
+ * /api/analytics/reports/{id}:
+ *   get:
+ *     tags: [Reports]
+ *     summary: Report detail
+ *     description: Full report detail with linked anomalies and notification log.
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema: { type: string, format: uuid }
+ *     responses:
+ *       200:
+ *         description: Full report with anomalies and notifications
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id: { type: string }
+ *                     district: { type: string }
+ *                     report_date: { type: string, format: date }
+ *                     anomalies: { type: array, items: { type: object } }
+ *                     notifications: { type: array, items: { type: object } }
+ *       404:
+ *         description: Report not found
+ */
 router.get(
   "/:id",
   validateEngineSecret,
@@ -169,10 +274,37 @@ router.get(
   })
 );
 
-// ─────────────────────────────────────────────────────────────
-// GET /api/analytics/reports/district/:district
-// All reports for a specific district
-// ─────────────────────────────────────────────────────────────
+/**
+ * @swagger
+ * /api/analytics/reports/district/{district}:
+ *   get:
+ *     tags: [Reports]
+ *     summary: Reports by district
+ *     description: All reports for a specific district, paginated.
+ *     parameters:
+ *       - name: district
+ *         in: path
+ *         required: true
+ *         schema: { type: string }
+ *         description: District name
+ *       - $ref: '#/components/parameters/Page'
+ *       - $ref: '#/components/parameters/Limit'
+ *       - $ref: '#/components/parameters/Days'
+ *       - $ref: '#/components/parameters/StartDate'
+ *       - $ref: '#/components/parameters/EndDate'
+ *     responses:
+ *       200:
+ *         description: Paginated reports for the district
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 district: { type: string }
+ *                 pagination: { $ref: '#/components/schemas/Pagination' }
+ *                 data: { type: array, items: { type: object } }
+ */
 router.get(
   "/district/:district",
   validateEngineSecret,

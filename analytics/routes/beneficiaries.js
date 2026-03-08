@@ -8,10 +8,53 @@ const Joi = require("joi");
 const asyncHandler = (fn) => (req, res, next) =>
   Promise.resolve(fn(req, res, next)).catch(next);
 
-// ─────────────────────────────────────────────────────────────
-// GET /api/analytics/beneficiaries/stats
-// Aggregated beneficiary stats by district and scheme
-// ─────────────────────────────────────────────────────────────
+/**
+ * @swagger
+ * tags:
+ *   - name: Beneficiaries
+ *     description: Beneficiary statistics, demographics, and coverage
+ */
+
+/**
+ * @swagger
+ * /api/analytics/beneficiaries/stats:
+ *   get:
+ *     tags: [Beneficiaries]
+ *     summary: Aggregated beneficiary stats
+ *     description: Beneficiary counts grouped by district, scheme, block, state, or gender.
+ *     parameters:
+ *       - name: group_by
+ *         in: query
+ *         schema: { type: string, enum: [district, scheme_id, block, state, gender], default: district }
+ *       - $ref: '#/components/parameters/District'
+ *       - $ref: '#/components/parameters/SchemeId'
+ *       - name: state
+ *         in: query
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Grouped statistics
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 group_by: { type: string }
+ *                 count: { type: integer }
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       total: { type: string }
+ *                       active: { type: string }
+ *                       inactive: { type: string }
+ *                       avg_age: { type: string }
+ *                       male: { type: string }
+ *                       female: { type: string }
+ *                       other_gender: { type: string }
+ */
 router.get(
   "/stats",
   validateEngineSecret,
@@ -57,10 +100,33 @@ router.get(
   })
 );
 
-// ─────────────────────────────────────────────────────────────
-// GET /api/analytics/beneficiaries/distribution
-// Demographics breakdown - age ranges, gender, scheme enrollment
-// ─────────────────────────────────────────────────────────────
+/**
+ * @swagger
+ * /api/analytics/beneficiaries/distribution:
+ *   get:
+ *     tags: [Beneficiaries]
+ *     summary: Demographics distribution
+ *     description: Active beneficiary demographics broken down by age range, gender, scheme, and language.
+ *     parameters:
+ *       - $ref: '#/components/parameters/District'
+ *       - $ref: '#/components/parameters/SchemeId'
+ *     responses:
+ *       200:
+ *         description: Distribution buckets
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     by_age: { type: array, items: { type: object, properties: { age_range: { type: string }, count: { type: string } } } }
+ *                     by_gender: { type: array, items: { type: object, properties: { gender: { type: string }, count: { type: string } } } }
+ *                     by_scheme: { type: array, items: { type: object, properties: { scheme_id: { type: string }, count: { type: string } } } }
+ *                     by_language: { type: array, items: { type: object, properties: { language: { type: string }, count: { type: string } } } }
+ */
 router.get(
   "/distribution",
   validateEngineSecret,
@@ -136,10 +202,40 @@ router.get(
   })
 );
 
-// ─────────────────────────────────────────────────────────────
-// GET /api/analytics/beneficiaries/coverage
-// Response coverage: how many beneficiaries responded vs total
-// ─────────────────────────────────────────────────────────────
+/**
+ * @swagger
+ * /api/analytics/beneficiaries/coverage:
+ *   get:
+ *     tags: [Beneficiaries]
+ *     summary: Response coverage
+ *     description: Response rate vs enrolled beneficiaries per district×scheme.
+ *     parameters:
+ *       - $ref: '#/components/parameters/Days'
+ *       - $ref: '#/components/parameters/StartDate'
+ *       - $ref: '#/components/parameters/EndDate'
+ *       - $ref: '#/components/parameters/District'
+ *       - $ref: '#/components/parameters/SchemeId'
+ *     responses:
+ *       200:
+ *         description: Coverage data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 count: { type: integer }
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       district: { type: string }
+ *                       scheme_id: { type: string }
+ *                       enrolled_beneficiaries: { type: integer }
+ *                       total_responses: { type: integer }
+ *                       avg_response_rate: { type: number, format: float }
+ */
 router.get(
   "/coverage",
   validateEngineSecret,

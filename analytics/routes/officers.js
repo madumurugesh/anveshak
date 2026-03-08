@@ -7,10 +7,54 @@ const { validateEngineSecret, validateQuery } = require("../middleware/validate"
 const asyncHandler = (fn) => (req, res, next) =>
   Promise.resolve(fn(req, res, next)).catch(next);
 
-// ─────────────────────────────────────────────────────────────
-// GET /api/analytics/officers
-// List all officers with their activity stats
-// ─────────────────────────────────────────────────────────────
+/**
+ * @swagger
+ * tags:
+ *   - name: Officers
+ *     description: Field officers — listing, profile, and action timeline
+ */
+
+/**
+ * @swagger
+ * /api/analytics/officers:
+ *   get:
+ *     tags: [Officers]
+ *     summary: List all officers
+ *     description: List all officers with their activity stats. Optionally filter by district or state.
+ *     parameters:
+ *       - $ref: '#/components/parameters/District'
+ *       - name: state
+ *         in: query
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Officer list with stats
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 count: { type: integer }
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id: { type: string, format: uuid }
+ *                       name: { type: string }
+ *                       email: { type: string }
+ *                       role: { type: string }
+ *                       district: { type: string, nullable: true }
+ *                       block: { type: string, nullable: true }
+ *                       state: { type: string }
+ *                       is_active: { type: boolean }
+ *                       total_actions: { type: string }
+ *                       field_visits: { type: string }
+ *                       resolved_count: { type: string }
+ *                       assigned_anomalies: { type: string }
+ *                       open_anomalies: { type: string }
+ */
 router.get(
   "/",
   validateEngineSecret,
@@ -66,10 +110,40 @@ router.get(
   })
 );
 
-// ─────────────────────────────────────────────────────────────
-// GET /api/analytics/officers/:id
-// Single officer profile with performance metrics
-// ─────────────────────────────────────────────────────────────
+/**
+ * @swagger
+ * /api/analytics/officers/{id}:
+ *   get:
+ *     tags: [Officers]
+ *     summary: Officer profile
+ *     description: Single officer profile with recent actions, assigned anomalies, and login sessions.
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema: { type: string, format: uuid }
+ *     responses:
+ *       200:
+ *         description: Officer detail
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id: { type: string }
+ *                     name: { type: string }
+ *                     email: { type: string }
+ *                     role: { type: string }
+ *                     recent_actions: { type: array, items: { type: object } }
+ *                     assigned_anomalies: { type: array, items: { type: object } }
+ *                     recent_sessions: { type: array, items: { type: object } }
+ *       404:
+ *         description: Officer not found
+ */
 router.get(
   "/:id",
   validateEngineSecret,
@@ -136,10 +210,36 @@ router.get(
   })
 );
 
-// ─────────────────────────────────────────────────────────────
-// GET /api/analytics/officers/:id/actions
-// Paginated action timeline for an officer
-// ─────────────────────────────────────────────────────────────
+/**
+ * @swagger
+ * /api/analytics/officers/{id}/actions:
+ *   get:
+ *     tags: [Officers]
+ *     summary: Officer action timeline
+ *     description: Paginated action timeline for an officer.
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema: { type: string, format: uuid }
+ *       - $ref: '#/components/parameters/Page'
+ *       - $ref: '#/components/parameters/Limit'
+ *       - $ref: '#/components/parameters/Days'
+ *       - $ref: '#/components/parameters/StartDate'
+ *       - $ref: '#/components/parameters/EndDate'
+ *     responses:
+ *       200:
+ *         description: Paginated action list
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 officer_id: { type: string }
+ *                 pagination: { $ref: '#/components/schemas/Pagination' }
+ *                 data: { type: array, items: { type: object } }
+ */
 router.get(
   "/:id/actions",
   validateEngineSecret,

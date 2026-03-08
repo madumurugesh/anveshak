@@ -8,7 +8,10 @@ const { v4: uuidv4 } = require("uuid");
 const rateLimit   = require("express-rate-limit");
 const logger      = require("./config/logger");
 const pool        = require("./config/db");
+const swaggerSpec = require("./config/swagger");
+const swaggerUi   = require("swagger-ui-express");
 const anomalyRoutes = require("./routes/anomaly");
+const demoRoutes    = require("./routes/demo");
 
 const app  = express();
 const PORT = process.env.PORT || 3002;
@@ -71,8 +74,13 @@ app.use(
 const { validateCognitoJwt } = require("./middleware/cognitoAuth");
 app.use(validateCognitoJwt);
 
+// ─── Swagger UI ─────────────────────────────────────────────
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec, { customSiteTitle: "Anveshak Anomaly Engine API Docs" }));
+app.get("/api-docs.json", (req, res) => res.json(swaggerSpec));
+
 // Routes
 app.use("/api/anomaly", anomalyRoutes);
+app.use("/api/demo", demoRoutes);
 
 // Health check - no auth required
 app.get("/health", async (req, res) => {

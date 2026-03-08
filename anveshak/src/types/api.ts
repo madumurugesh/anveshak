@@ -395,3 +395,67 @@ export interface HealthResponse {
     openai?: 'configured' | 'missing'
   }
 }
+
+// ─── Demo ────────────────────────────────────────────────────
+export interface DemoResponseRow {
+  id: string
+  date: string
+  pincode: string
+  scheme_id: ApiSchemeId
+  block: string
+  district: string
+  state: string
+  yes_count: number
+  no_count: number
+  total_responses: number
+  no_pct: number
+  active_beneficiaries: number
+  response_rate: number
+}
+
+export interface DemoAnomalyRow {
+  id: string
+  date: string
+  detector_type: ApiDetectorType
+  level: ApiLevel
+  pincode: string
+  block: string
+  district: string
+  state: string
+  scheme_id: ApiSchemeId
+  severity: ApiSeverity
+  score: number
+  no_pct: number
+  baseline_no_pct: number
+  total_responses: number
+  affected_beneficiaries: number
+  raw_data: Record<string, unknown>
+}
+
+export interface DemoReport {
+  id: string
+  district: string
+  report_date: string
+  narrative: string
+  schemes_summary: Record<string, unknown>
+}
+
+export interface DemoRunWeekResponse {
+  success: true
+  demo_id: string
+  summary: {
+    district: string
+    scheme_id: string
+    days_processed: number
+    total_responses: number
+    anomalies_detected: number
+    anomalies_classified: number
+    critical: number
+    high: number
+    medium: number
+  }
+  responses: DemoResponseRow[]
+  anomalies: DemoAnomalyRow[]
+  classifications: (ClassifyResponse | { success: false; anomaly_id: string; error: string })[]
+  report: DemoReport
+}

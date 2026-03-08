@@ -8,10 +8,52 @@ const Joi = require("joi");
 const asyncHandler = (fn) => (req, res, next) =>
   Promise.resolve(fn(req, res, next)).catch(next);
 
-// ─────────────────────────────────────────────────────────────
-// GET /api/analytics/schemes
-// All schemes with current performance metrics
-// ─────────────────────────────────────────────────────────────
+/**
+ * @swagger
+ * tags:
+ *   - name: Schemes
+ *     description: Scheme configuration and performance metrics
+ */
+
+/**
+ * @swagger
+ * /api/analytics/schemes:
+ *   get:
+ *     tags: [Schemes]
+ *     summary: List schemes with metrics
+ *     description: All schemes with current response, anomaly, and beneficiary stats.
+ *     parameters:
+ *       - $ref: '#/components/parameters/Days'
+ *       - $ref: '#/components/parameters/StartDate'
+ *       - $ref: '#/components/parameters/EndDate'
+ *     responses:
+ *       200:
+ *         description: Scheme list
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 count: { type: integer }
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       scheme_id: { type: string }
+ *                       scheme_name_en: { type: string }
+ *                       is_active: { type: boolean }
+ *                       total_responses: { type: integer }
+ *                       total_yes: { type: integer }
+ *                       total_no: { type: integer }
+ *                       avg_no_pct: { type: number }
+ *                       avg_response_rate: { type: number }
+ *                       anomaly_count: { type: integer }
+ *                       critical_anomalies: { type: integer }
+ *                       total_beneficiaries: { type: integer }
+ *                       active_beneficiaries: { type: integer }
+ */
 router.get(
   "/",
   validateEngineSecret,
@@ -90,10 +132,40 @@ router.get(
   })
 );
 
-// ─────────────────────────────────────────────────────────────
-// GET /api/analytics/schemes/:schemeId
-// Single scheme detail with district-level breakdown
-// ─────────────────────────────────────────────────────────────
+/**
+ * @swagger
+ * /api/analytics/schemes/{schemeId}:
+ *   get:
+ *     tags: [Schemes]
+ *     summary: Scheme detail
+ *     description: Single scheme config with district breakdown, daily trends, and top anomalies.
+ *     parameters:
+ *       - name: schemeId
+ *         in: path
+ *         required: true
+ *         schema: { type: string }
+ *       - $ref: '#/components/parameters/Days'
+ *       - $ref: '#/components/parameters/StartDate'
+ *       - $ref: '#/components/parameters/EndDate'
+ *     responses:
+ *       200:
+ *         description: Scheme detail
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     config: { type: object }
+ *                     district_breakdown: { type: array, items: { type: object } }
+ *                     daily_trends: { type: array, items: { type: object } }
+ *                     top_anomalies: { type: array, items: { type: object } }
+ *       404:
+ *         description: Scheme not found
+ */
 router.get(
   "/:schemeId",
   validateEngineSecret,
@@ -222,11 +294,38 @@ router.post(
   })
 );
 
-// ─────────────────────────────────────────────────────────────
-// POST /api/analytics/schemes/upload
-// Bulk CSV upload (expects multipart/form-data with "file" field)
-// For now, accepts JSON array as fallback when no file parser is configured
-// ─────────────────────────────────────────────────────────────
+/**
+ * @swagger
+ * /api/analytics/schemes/upload:
+ *   post:
+ *     tags: [Schemes]
+ *     summary: Bulk scheme upload
+ *     description: "Bulk upsert of schemes. Accepts a JSON array or { schemes: [...] }."
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             oneOf:
+ *               - type: array
+ *                 items: { type: object }
+ *               - type: object
+ *                 properties:
+ *                   schemes: { type: array, items: { type: object } }
+ *     responses:
+ *       200:
+ *         description: Bulk result
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 count: { type: integer, description: Successfully processed }
+ *                 total: { type: integer, description: Items received }
+ *       400:
+ *         description: Invalid body
+ */
 router.post(
   "/upload",
   validateEngineSecret,

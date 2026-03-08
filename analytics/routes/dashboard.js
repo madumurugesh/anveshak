@@ -7,10 +7,84 @@ const { validateEngineSecret, validateQuery } = require("../middleware/validate"
 const asyncHandler = (fn) => (req, res, next) =>
   Promise.resolve(fn(req, res, next)).catch(next);
 
-// ─────────────────────────────────────────────────────────────
-// GET /api/analytics/dashboard/overview
-// Key metrics for the main dashboard cards
-// ─────────────────────────────────────────────────────────────
+/**
+ * @swagger
+ * tags:
+ *   - name: Dashboard
+ *     description: Dashboard overview, trends, and district summary
+ */
+
+/**
+ * @swagger
+ * /api/analytics/dashboard/overview:
+ *   get:
+ *     tags: [Dashboard]
+ *     summary: Dashboard overview metrics
+ *     description: Key metrics for the main dashboard cards — responses, anomalies, beneficiaries, and alert actions.
+ *     parameters:
+ *       - $ref: '#/components/parameters/Days'
+ *       - $ref: '#/components/parameters/StartDate'
+ *       - $ref: '#/components/parameters/EndDate'
+ *     responses:
+ *       200:
+ *         description: Overview data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean, example: true }
+ *                 window: { type: string, example: "last_7_days" }
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     responses:
+ *                       type: object
+ *                       properties:
+ *                         total_responses: { type: string }
+ *                         total_yes: { type: string }
+ *                         total_no: { type: string }
+ *                         districts_reporting: { type: string }
+ *                         pincodes_reporting: { type: string }
+ *                         avg_no_pct: { type: string }
+ *                         avg_response_rate: { type: string }
+ *                     anomalies:
+ *                       type: object
+ *                       properties:
+ *                         total_anomalies: { type: string }
+ *                         critical: { type: string }
+ *                         high: { type: string }
+ *                         medium: { type: string }
+ *                         low: { type: string }
+ *                         resolved: { type: string }
+ *                         open: { type: string }
+ *                         ai_classified: { type: string }
+ *                         avg_ai_confidence: { type: string }
+ *                     beneficiaries:
+ *                       type: object
+ *                       properties:
+ *                         total_beneficiaries: { type: string }
+ *                         active_beneficiaries: { type: string }
+ *                         schemes_count: { type: string }
+ *                         districts_count: { type: string }
+ *                     alerts:
+ *                       type: object
+ *                       properties:
+ *                         total_actions: { type: string }
+ *                         resolved_actions: { type: string }
+ *                         field_visits: { type: string }
+ *                         escalations: { type: string }
+ *       400:
+ *         description: Invalid query parameters
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       401:
+ *         description: Missing X-Engine-Secret
+ *       403:
+ *         description: Invalid engine secret
+ */
 router.get(
   "/overview",
   validateEngineSecret,
@@ -90,10 +164,54 @@ router.get(
   })
 );
 
-// ─────────────────────────────────────────────────────────────
-// GET /api/analytics/dashboard/trends
-// Time-series data for response and anomaly charts
-// ─────────────────────────────────────────────────────────────
+/**
+ * @swagger
+ * /api/analytics/dashboard/trends:
+ *   get:
+ *     tags: [Dashboard]
+ *     summary: Response and anomaly trends
+ *     description: Time-series data for response and anomaly charts.
+ *     parameters:
+ *       - $ref: '#/components/parameters/Days'
+ *       - $ref: '#/components/parameters/StartDate'
+ *       - $ref: '#/components/parameters/EndDate'
+ *       - $ref: '#/components/parameters/SchemeId'
+ *       - $ref: '#/components/parameters/District'
+ *     responses:
+ *       200:
+ *         description: Trend data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 window: { type: string }
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     response_trend:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           date: { type: string, format: date }
+ *                           total_responses: { type: string }
+ *                           yes_count: { type: string }
+ *                           no_count: { type: string }
+ *                           avg_no_pct: { type: string }
+ *                     anomaly_trend:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           date: { type: string, format: date }
+ *                           total_anomalies: { type: string }
+ *                           critical: { type: string }
+ *                           high: { type: string }
+ *                           medium: { type: string }
+ *                           low: { type: string }
+ */
 router.get(
   "/trends",
   validateEngineSecret,
@@ -156,10 +274,44 @@ router.get(
   })
 );
 
-// ─────────────────────────────────────────────────────────────
-// GET /api/analytics/dashboard/district-summary
-// Per-district breakdown for map / table
-// ─────────────────────────────────────────────────────────────
+/**
+ * @swagger
+ * /api/analytics/dashboard/district-summary:
+ *   get:
+ *     tags: [Dashboard]
+ *     summary: Per-district breakdown
+ *     description: Per-district breakdown of responses, anomalies, and failure rates for map and table views.
+ *     parameters:
+ *       - $ref: '#/components/parameters/Days'
+ *       - $ref: '#/components/parameters/StartDate'
+ *       - $ref: '#/components/parameters/EndDate'
+ *       - $ref: '#/components/parameters/SchemeId'
+ *     responses:
+ *       200:
+ *         description: District summary list
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 window: { type: string }
+ *                 count: { type: integer }
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       district: { type: string }
+ *                       total_responses: { type: string }
+ *                       yes_count: { type: string }
+ *                       no_count: { type: string }
+ *                       avg_no_pct: { type: string }
+ *                       avg_response_rate: { type: string }
+ *                       pincodes: { type: string }
+ *                       anomaly_count: { type: string }
+ *                       critical_count: { type: string }
+ */
 router.get(
   "/district-summary",
   validateEngineSecret,

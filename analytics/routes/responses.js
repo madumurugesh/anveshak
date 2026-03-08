@@ -7,10 +7,57 @@ const { validateEngineSecret, validateQuery } = require("../middleware/validate"
 const asyncHandler = (fn) => (req, res, next) =>
   Promise.resolve(fn(req, res, next)).catch(next);
 
-// ─────────────────────────────────────────────────────────────
-// GET /api/analytics/responses/daily
-// Daily response aggregates with multi-filter support
-// ─────────────────────────────────────────────────────────────
+/**
+ * @swagger
+ * tags:
+ *   - name: Responses
+ *     description: Daily response analytics, trends, rejections, and baselines
+ */
+
+/**
+ * @swagger
+ * /api/analytics/responses/daily:
+ *   get:
+ *     tags: [Responses]
+ *     summary: Daily response aggregates
+ *     description: Paginated daily response data with multi-filter support.
+ *     parameters:
+ *       - $ref: '#/components/parameters/Page'
+ *       - $ref: '#/components/parameters/Limit'
+ *       - $ref: '#/components/parameters/Days'
+ *       - $ref: '#/components/parameters/StartDate'
+ *       - $ref: '#/components/parameters/EndDate'
+ *       - $ref: '#/components/parameters/District'
+ *       - $ref: '#/components/parameters/SchemeId'
+ *       - name: block
+ *         in: query
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Paginated daily responses
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 pagination: { $ref: '#/components/schemas/Pagination' }
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id: { type: string, format: uuid }
+ *                       date: { type: string, format: date }
+ *                       pincode: { type: string }
+ *                       scheme_id: { type: string }
+ *                       district: { type: string }
+ *                       yes_count: { type: integer }
+ *                       no_count: { type: integer }
+ *                       total_responses: { type: integer }
+ *                       no_pct: { type: number }
+ *                       response_rate: { type: number }
+ */
 router.get(
   "/daily",
   validateEngineSecret,
@@ -67,10 +114,41 @@ router.get(
   })
 );
 
-// ─────────────────────────────────────────────────────────────
-// GET /api/analytics/responses/trends
-// Aggregated daily totals for time-series charts
-// ─────────────────────────────────────────────────────────────
+/**
+ * @swagger
+ * /api/analytics/responses/trends:
+ *   get:
+ *     tags: [Responses]
+ *     summary: Response trends
+ *     description: Aggregated daily totals for time-series charts.
+ *     parameters:
+ *       - $ref: '#/components/parameters/Days'
+ *       - $ref: '#/components/parameters/StartDate'
+ *       - $ref: '#/components/parameters/EndDate'
+ *       - $ref: '#/components/parameters/District'
+ *       - $ref: '#/components/parameters/SchemeId'
+ *     responses:
+ *       200:
+ *         description: Time-series data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 count: { type: integer }
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       date: { type: string, format: date }
+ *                       total_responses: { type: string }
+ *                       yes_count: { type: string }
+ *                       no_count: { type: string }
+ *                       avg_no_pct: { type: string }
+ *                       avg_response_rate: { type: string }
+ */
 router.get(
   "/trends",
   validateEngineSecret,
@@ -118,10 +196,34 @@ router.get(
   })
 );
 
-// ─────────────────────────────────────────────────────────────
-// GET /api/analytics/responses/rejections
-// Rejected response analytics
-// ─────────────────────────────────────────────────────────────
+/**
+ * @swagger
+ * /api/analytics/responses/rejections:
+ *   get:
+ *     tags: [Responses]
+ *     summary: Rejection analytics
+ *     description: Summary, breakdown by reason, and daily trend for rejected responses.
+ *     parameters:
+ *       - $ref: '#/components/parameters/Days'
+ *       - $ref: '#/components/parameters/StartDate'
+ *       - $ref: '#/components/parameters/EndDate'
+ *       - $ref: '#/components/parameters/SchemeId'
+ *     responses:
+ *       200:
+ *         description: Rejection data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     total_rejections: { type: integer }
+ *                     by_reason: { type: array, items: { type: object, properties: { rejection_reason: { type: string }, scheme_id: { type: string }, count: { type: string } } } }
+ *                     daily_trend: { type: array, items: { type: object, properties: { date: { type: string, format: date }, rejections: { type: string } } } }
+ */
 router.get(
   "/rejections",
   validateEngineSecret,
@@ -185,10 +287,41 @@ router.get(
   })
 );
 
-// ─────────────────────────────────────────────────────────────
-// GET /api/analytics/responses/baselines
-// District baseline data for comparison
-// ─────────────────────────────────────────────────────────────
+/**
+ * @swagger
+ * /api/analytics/responses/baselines:
+ *   get:
+ *     tags: [Responses]
+ *     summary: District baselines
+ *     description: Computed baseline metrics for each district×scheme×block combination.
+ *     parameters:
+ *       - $ref: '#/components/parameters/District'
+ *       - $ref: '#/components/parameters/SchemeId'
+ *     responses:
+ *       200:
+ *         description: Baseline data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 count: { type: integer }
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       district: { type: string }
+ *                       block: { type: string }
+ *                       scheme_id: { type: string }
+ *                       computed_date: { type: string, format: date }
+ *                       avg_no_pct: { type: number }
+ *                       std_dev_no_pct: { type: number }
+ *                       avg_total_responses: { type: number }
+ *                       avg_response_rate: { type: number }
+ *                       sample_days: { type: integer }
+ */
 router.get(
   "/baselines",
   validateEngineSecret,
