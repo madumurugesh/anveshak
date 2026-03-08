@@ -74,6 +74,7 @@ jobs:
 
             # ── 1. Clone or pull repo ──
             info "Syncing repository..."
+            mkdir -p "$APP_DIR"
             if [ -d "$APP_DIR/.git" ]; then
               cd "$APP_DIR"
               git fetch origin "$BRANCH"
