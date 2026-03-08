@@ -1,6 +1,7 @@
 """Thin wrappers around AWS services (DynamoDB + Kinesis) via aioboto3."""
 
 import aioboto3
+from datetime import date
 from app.config import get_settings
 
 
@@ -43,31 +44,66 @@ async def get_records(shard_iterator: str) -> tuple[list[dict], str | None]:
 
 
 # ── DynamoDB aggregation helpers ────────────────────────────────
-async def increment_counter(pincode: str, scheme_id: str, response_value: int) -> None:
-    """Atomically increment the windowed counter in DynamoDB.
+async def increment_counter(
+    pincode: str,
+    scheme_id: str,
+    response: str,
+    district: str | None = None,
+    block: str | None = None,
+    state: str | None = None,
+) -> None:
+    """Atomically increment yes_count/no_count + total in DynamoDB.
 
-    Partition key : pincode#scheme_id#YYYY-MM-DD
-    Attributes    : total_count, response_sum  (accumulated via ADD)
+    Key  : pincode#scheme_id#YYYY-MM-DD
+    Attrs: yes_count | no_count, total, district, block, state
     """
-    from datetime import date
-
     s = get_settings()
     pk = f"{pincode}#{scheme_id}#{date.today().isoformat()}"
+
+    # ADD clause: increment the right counter + total
+    if response == "YES":
+        add_clause = "ADD yes_count :one, total :one"
+    else:
+        add_clause = "ADD no_count :one, total :one"
+
+    # SET clause: persist geo data (only set if not already present)
+    set_parts: list[str] = []
+    attr_values: dict = {":one": 1}
+    attr_names: dict = {}
+
+    if district:
+        set_parts.append("#d = if_not_exists(#d, :district)")
+        attr_values[":district"] = district
+        attr_names["#d"] = "district"
+    if block:
+        set_parts.append("#b = if_not_exists(#b, :blk)")
+        attr_values[":blk"] = block
+        attr_names["#b"] = "block"
+    if state:
+        set_parts.append("#s = if_not_exists(#s, :st)")
+        attr_values[":st"] = state
+        attr_names["#s"] = "state"
+
+    # DynamoDB allows SET + ADD in a single UpdateExpression
+    expr = add_clause
+    if set_parts:
+        expr = "SET " + ", ".join(set_parts) + " " + add_clause
 
     session = _session()
     async with session.resource("dynamodb") as ddb:
         table = await ddb.Table(s.dynamodb_table_agg)
-        await table.update_item(
-            Key={"pk": pk},
-            UpdateExpression="ADD total_count :one, response_sum :val",
-            ExpressionAttributeValues={":one": 1, ":val": response_value},
-        )
+        kwargs: dict = {
+            "Key": {"pk": pk},
+            "UpdateExpression": expr,
+            "ExpressionAttributeValues": attr_values,
+        }
+        if attr_names:
+            kwargs["ExpressionAttributeNames"] = attr_names
+        await table.update_item(**kwargs)
 
 
 async def scan_today_aggregates() -> list[dict]:
     """Scan all of today's aggregate rows from DynamoDB."""
-    from datetime import date
-
     s = get_settings()
     today = date.today().isoformat()
     session = _session()

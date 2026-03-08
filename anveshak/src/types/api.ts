@@ -24,10 +24,11 @@ export interface ApiError {
 export interface AnalyticsDashboardOverview {
   responses: {
     total_responses: string
-    yes_count: string
-    no_count: string
+    total_yes: string
+    total_no: string
+    districts_reporting: string
+    pincodes_reporting: string
     avg_no_pct: string
-    unique_pincodes: string
     avg_response_rate: string
   }
   anomalies: {
@@ -36,8 +37,9 @@ export interface AnalyticsDashboardOverview {
     high: string
     medium: string
     low: string
-    classified: string
-    pending: string
+    resolved: string
+    open: string
+    ai_classified: string
     avg_ai_confidence: string
   }
   beneficiaries: {
@@ -49,7 +51,7 @@ export interface AnalyticsDashboardOverview {
   alerts: {
     total_actions: string
     field_visits: string
-    resolutions: string
+    resolved_actions: string
     escalations: string
   }
 }
@@ -187,6 +189,8 @@ export interface AnalyticsOfficer {
   block: string | null
   state: string
   is_active: boolean
+  last_login_at: string | null
+  created_at: string
   total_actions: string
   field_visits: string
   resolved_count: string
@@ -220,11 +224,19 @@ export interface AnalyticsSchemeOverview {
   scheme_name_en: string
   scheme_name_ta: string
   is_active: boolean
+  distribution_day_start: number | null
+  distribution_day_end: number | null
+  min_expected_response_rate: string | null
   total_responses: string
+  total_yes: string
+  total_no: string
   avg_no_pct: string
   avg_response_rate: string
+  reporting_districts: string
+  reporting_pincodes: string
   anomaly_count: string
   critical_anomalies: string
+  resolved_anomalies: string
   total_beneficiaries: string
   active_beneficiaries: string
 }
@@ -236,12 +248,15 @@ export interface AnalyticsResponseTrend {
   yes_count: string
   no_count: string
   avg_no_pct: string
+  avg_response_rate: string
+  pincodes_reporting: string
+  districts_reporting: string
 }
 
 export interface AnalyticsRejectionData {
   total_rejections: number
-  by_reason: { reason: string; count: number }[]
-  daily_trend: { date: string; rejections: number }[]
+  by_reason: { rejection_reason: string; scheme_id: string; count: string }[]
+  daily_trend: { date: string; rejections: string; duplicates: string; unregistered: string; invalid_input: string }[]
 }
 
 // ─── Analytics: AI Usage ─────────────────────────────────────
@@ -263,11 +278,18 @@ export interface AnalyticsReport {
   id: string
   district: string
   report_date: string
-  narrative: string | null
-  anomalies_count: string
-  critical_count: string
-  s3_key: string | null
-  created_at: string
+  total_responses: number | null
+  total_anomalies: number | null
+  critical_count: number | null
+  high_count: number | null
+  medium_count: number | null
+  schemes_summary: Record<string, unknown> | null
+  best_performing_block: string | null
+  worst_performing_pincode: string | null
+  pdf_s3_key: string | null
+  email_sent: boolean
+  email_sent_at: string | null
+  generated_at: string
 }
 
 // ─── Anomaly Detection Engine ────────────────────────────────

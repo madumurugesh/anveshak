@@ -38,8 +38,8 @@ app.use(
       }
       cb(new Error(`Origin ${origin} not allowed by CORS`));
     },
-    methods: ["GET", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "X-Engine-Secret", "X-Request-ID"],
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "X-Engine-Secret", "X-Request-ID", "Authorization"],
     exposedHeaders: ["X-Request-ID", "X-RateLimit-Remaining"],
     credentials: true,
     maxAge: 86400,
@@ -74,6 +74,10 @@ app.use(
     message: { success: false, error: "Too many requests — slow down" },
   })
 );
+
+// ─── Cognito JWT validation (passes through if no JWT or Cognito not configured) ──
+const { validateCognitoJwt } = require("./middleware/cognitoAuth");
+app.use(validateCognitoJwt);
 
 // ─── Routes ─────────────────────────────────────────────────
 app.use("/api/analytics/dashboard",     dashboardRoutes);

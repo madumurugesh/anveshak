@@ -34,8 +34,8 @@ export default function ScheduledReportsPage() {
             <p className="text-gray-500 text-sm text-center py-8">No reports found.</p>
           )}
           {reports.map((r) => {
-            const anomaliesCount = parseInt(r.anomalies_count) || 0
-            const criticalCount = parseInt(r.critical_count) || 0
+            const anomaliesCount = r.total_anomalies || 0
+            const criticalCount = r.critical_count || 0
 
             return (
               <div key={r.id} className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
@@ -58,12 +58,12 @@ export default function ScheduledReportsPage() {
                       {r.district} Report — {r.report_date}
                     </h3>
                   </div>
-                  {r.s3_key && (
+                  {r.pdf_s3_key && (
                     <button
                       onClick={async () => {
                         try {
                           const pdf = await analytics.reports.pdf(r.id)
-                          if (pdf.data.url) window.open(pdf.data.url, '_blank')
+                          if (pdf.data.download_url) window.open(pdf.data.download_url, '_blank')
                         } catch { /* ignore */ }
                       }}
                       className="px-3 py-1.5 text-xs rounded-lg bg-[#EBF5E3] text-[#3E7228] hover:bg-[#DFF0D6] transition"
@@ -72,9 +72,6 @@ export default function ScheduledReportsPage() {
                     </button>
                   )}
                 </div>
-                {r.narrative && (
-                  <p className="text-sm text-gray-600 mt-2 line-clamp-2">{r.narrative}</p>
-                )}
                 <div className="mt-3 pt-3 border-t border-gray-200 grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
                   <div>
                     <span className="text-gray-500">Anomalies</span>
@@ -86,11 +83,11 @@ export default function ScheduledReportsPage() {
                   </div>
                   <div>
                     <span className="text-gray-500">Created</span>
-                    <p className="text-gray-700 mt-0.5">{new Date(r.created_at).toLocaleDateString()}</p>
+                    <p className="text-gray-700 mt-0.5">{new Date(r.generated_at).toLocaleDateString()}</p>
                   </div>
                   <div>
                     <span className="text-gray-500">Has PDF</span>
-                    <p className="text-gray-700 mt-0.5">{r.s3_key ? 'Yes' : 'No'}</p>
+                    <p className="text-gray-700 mt-0.5">{r.pdf_s3_key ? 'Yes' : 'No'}</p>
                   </div>
                 </div>
               </div>

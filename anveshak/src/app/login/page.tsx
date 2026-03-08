@@ -2,11 +2,12 @@
 
 import { useState, type FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
-import { signIn } from '@/lib/auth'
+import { useAuth } from '@/providers/AuthProvider'
 import Cookies from 'js-cookie'
 
 export default function LoginPage() {
   const router = useRouter()
+  const { login } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -32,8 +33,9 @@ export default function LoginPage() {
 
     setLoading(true)
     try {
-      await signIn(email, password)
+      await login(email, password)
       Cookies.set('accessToken', 'authenticated', { expires: rememberMe ? 7 : 1, sameSite: 'lax' })
+      Cookies.set('userEmail', email, { expires: rememberMe ? 7 : 1, sameSite: 'lax' })
       router.push('/dashboard')
     } catch {
       setError('Invalid email or password. Please try again.')

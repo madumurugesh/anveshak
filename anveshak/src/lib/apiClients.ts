@@ -26,7 +26,7 @@ import type {
 
 // ─── Configuration ───────────────────────────────────────────
 const ANALYTICS_BASE = process.env.NEXT_PUBLIC_ANALYTICS_API_URL || 'http://localhost:3001'
-const ANOMALY_BASE = process.env.NEXT_PUBLIC_ANOMALY_API_URL || 'http://localhost:3000'
+const ANOMALY_BASE = process.env.NEXT_PUBLIC_ANOMALY_API_URL || 'http://localhost:3002'
 const ENGINE_SECRET = process.env.NEXT_PUBLIC_ENGINE_SECRET || ''
 
 // ─── Generic fetch helpers ───────────────────────────────────
@@ -212,7 +212,7 @@ export const analytics = {
       ),
 
     pdf: (id: string) =>
-      apiGet<ApiResponse<{ report_id: string; url: string; expires_in: number }>>(
+      apiGet<ApiResponse<{ report_id: string; download_url: string; district: string; report_date: string; expires_in: number }>>(
         ANALYTICS_BASE,
         `/api/analytics/reports/${encodeURIComponent(id)}/pdf`
       ),

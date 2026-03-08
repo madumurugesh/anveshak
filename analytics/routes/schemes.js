@@ -3,6 +3,7 @@ const router = express.Router();
 const pool = require("../config/db");
 const logger = require("../config/logger");
 const { validateEngineSecret, validateQuery } = require("../middleware/validate");
+const Joi = require("joi");
 
 const asyncHandler = (fn) => (req, res, next) =>
   Promise.resolve(fn(req, res, next)).catch(next);
@@ -177,6 +178,87 @@ router.get(
         top_anomalies:      topAnomalies.rows,
       },
     });
+  })
+);
+
+// ─────────────────────────────────────────────────────────────
+// POST /api/analytics/schemes
+// Upsert a single scheme into scheme_config
+// ─────────────────────────────────────────────────────────────
+const schemeBodySchema = Joi.object({
+  scheme_id: Joi.string().valid("PDS", "PM_KISAN", "OLD_AGE_PENSION", "LPG").required(),
+  scheme_name_en: Joi.string().max(120).required(),
+  scheme_name_ta: Joi.string().max(200).allow("", null),
+  ministry: Joi.string().max(200).allow("", null),
+  description: Joi.string().allow("", null),
+  eligibility: Joi.string().allow("", null),
+  delivery_cycle: Joi.string().valid("WEEKLY", "MONTHLY", "QUARTERLY", "ANNUAL").default("MONTHLY"),
+  is_active: Joi.boolean().default(true),
+});
+
+router.post(
+  "/",
+  validateEngineSecret,
+  asyncHandler(async (req, res) => {
+    const { error: valErr, value } = schemeBodySchema.validate(req.body, { stripUnknown: true });
+    if (valErr) {
+      return res.status(400).json({ success: false, error: valErr.details[0].message });
+    }
+
+    const { scheme_id, scheme_name_en, scheme_name_ta, is_active } = value;
+
+    await pool.query(
+      `INSERT INTO scheme_config (scheme_id, scheme_name_en, scheme_name_ta, is_active)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (scheme_id) DO UPDATE SET
+         scheme_name_en = EXCLUDED.scheme_name_en,
+         scheme_name_ta = COALESCE(EXCLUDED.scheme_name_ta, scheme_config.scheme_name_ta),
+         is_active = EXCLUDED.is_active`,
+      [scheme_id, scheme_name_en, scheme_name_ta || null, is_active]
+    );
+
+    logger.info("Scheme upserted", { scheme_id });
+    return res.status(200).json({ success: true, message: "Scheme saved", scheme_id });
+  })
+);
+
+// ─────────────────────────────────────────────────────────────
+// POST /api/analytics/schemes/upload
+// Bulk CSV upload (expects multipart/form-data with "file" field)
+// For now, accepts JSON array as fallback when no file parser is configured
+// ─────────────────────────────────────────────────────────────
+router.post(
+  "/upload",
+  validateEngineSecret,
+  asyncHandler(async (req, res) => {
+    // Accept JSON array body as a simple bulk upsert
+    const schemes = Array.isArray(req.body) ? req.body : req.body?.schemes;
+    if (!schemes || !Array.isArray(schemes)) {
+      return res.status(400).json({
+        success: false,
+        error: "Request body must be a JSON array of schemes or { schemes: [...] }",
+      });
+    }
+
+    let processed = 0;
+    for (const s of schemes) {
+      const { error: valErr, value } = schemeBodySchema.validate(s, { stripUnknown: true });
+      if (valErr) continue;
+
+      await pool.query(
+        `INSERT INTO scheme_config (scheme_id, scheme_name_en, scheme_name_ta, is_active)
+         VALUES ($1, $2, $3, $4)
+         ON CONFLICT (scheme_id) DO UPDATE SET
+           scheme_name_en = EXCLUDED.scheme_name_en,
+           scheme_name_ta = COALESCE(EXCLUDED.scheme_name_ta, scheme_config.scheme_name_ta),
+           is_active = EXCLUDED.is_active`,
+        [value.scheme_id, value.scheme_name_en, value.scheme_name_ta || null, value.is_active]
+      );
+      processed++;
+    }
+
+    logger.info("Bulk scheme upload", { total: schemes.length, processed });
+    return res.status(200).json({ success: true, count: processed, total: schemes.length });
   })
 );
 

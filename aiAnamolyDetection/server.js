@@ -11,7 +11,7 @@ const pool        = require("./config/db");
 const anomalyRoutes = require("./routes/anomaly");
 
 const app  = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3002;
 
 // ─── Security headers ───────────────────────────────────────
 app.use(helmet());
@@ -31,7 +31,7 @@ app.use(
       cb(new Error(`Origin ${origin} not allowed by CORS`));
     },
     methods: ["GET", "POST", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "X-Engine-Secret", "X-Request-ID"],
+    allowedHeaders: ["Content-Type", "X-Engine-Secret", "X-Request-ID", "Authorization"],
     exposedHeaders: ["X-Request-ID", "X-RateLimit-Remaining"],
     credentials: true,
     maxAge: 86400, // preflight cache 24 h
@@ -66,6 +66,10 @@ app.use(
     message: { success: false, error: "Too many requests — slow down" },
   })
 );
+
+// ─── Cognito JWT validation (passes through if no JWT or Cognito not configured) ──
+const { validateCognitoJwt } = require("./middleware/cognitoAuth");
+app.use(validateCognitoJwt);
 
 // Routes
 app.use("/api/anomaly", anomalyRoutes);

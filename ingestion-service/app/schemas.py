@@ -5,7 +5,7 @@ class IVRWebhookRequest(BaseModel):
     phone_hash: str = Field(..., min_length=1, description="SHA-256 hash of the citizen phone number")
     scheme_id: str = Field(..., min_length=1, description="Unique identifier of the government scheme")
     pincode: str = Field(..., pattern=r"^\d{6}$", description="6-digit pincode")
-    response_value: int = Field(..., ge=1, le=5, description="IVR keypress response (1-5)")
+    response_value: int = Field(..., ge=1, le=2, description="IVR keypress: 1=YES (received), 2=NO (not received)")
 
 
 class IVRWebhookResponse(BaseModel):

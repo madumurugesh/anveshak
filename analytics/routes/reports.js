@@ -6,8 +6,8 @@ const { validateEngineSecret, validateQuery } = require("../middleware/validate"
 const { S3Client, GetObjectCommand } = require("@aws-sdk/client-s3");
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 
-const s3 = new S3Client({ region: process.env.AWS_REGION || "ap-south-1" });
-const BUCKET = process.env.S3_REPORT_BUCKET || "welfarewatch-reports";
+const s3 = new S3Client({ region: process.env.AWS_REGION || "us-east-1" });
+const BUCKET = process.env.S3_REPORT_BUCKET || "anveshak-reports";
 const PRESIGN_EXPIRES = parseInt(process.env.S3_PRESIGN_EXPIRES || "3600");
 
 const asyncHandler = (fn) => (req, res, next) =>

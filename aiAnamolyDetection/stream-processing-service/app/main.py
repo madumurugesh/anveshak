@@ -42,7 +42,9 @@ async def health():
 
 @app.post("/admin/flush")
 async def manual_flush():
-    """Trigger an immediate flush (useful for testing / ops)."""
+    """Trigger an immediate flush + detection (useful for testing / ops)."""
     from app.workers import flush_to_rds
+    from app.detectors import run_detectors
     await flush_to_rds()
-    return {"status": "flushed"}
+    await run_detectors()
+    return {"status": "flushed_and_detected"}

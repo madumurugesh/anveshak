@@ -1,11 +1,11 @@
 {
   "info": {
     "name": "WelfareWatch — AI Anomaly Engine",
-    "description": "Complete API collection for the WelfareWatch AI Anomaly Classification Engine.\n\n**Base URL:** `{{base_url}}`  \n**Auth:** All `/api/anomaly/*` routes require the `X-Engine-Secret` header.\n\n---\n\n### Setup\n1. Import this collection into Postman.\n2. Create an environment with the variables below.\n3. Run **Health Check** first to confirm the server and DB are up.\n\n### Environment Variables\n| Variable | Example Value |\n|---|---|\n| `base_url` | `http://localhost:3000` |\n| `engine_secret` | *(value of ENGINE_SECRET in your .env)* |\n| `anomaly_id` | `aaaaaaaa-0000-0000-0000-000000000001` |",
+    "description": "Complete API collection for the WelfareWatch AI Anomaly Classification Engine.\n\n**Base URL:** `{{base_url}}`  \n**Auth:** All `/api/anomaly/*` routes require the `X-Engine-Secret` header.\n\n---\n\n### Setup\n1. Import this collection into Postman.\n2. Create an environment with the variables below.\n3. Run **Health Check** first to confirm the server and DB are up.\n\n### Environment Variables\n| Variable | Example Value |\n|---|---|\n| `base_url` | `http://localhost:3002` |\n| `engine_secret` | *(value of ENGINE_SECRET in your .env)* |\n| `anomaly_id` | `aaaaaaaa-0000-0000-0000-000000000001` |",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    { "key": "base_url",      "value": "http://localhost:3000", "type": "string" },
+    { "key": "base_url",      "value": "http://localhost:3002", "type": "string" },
     { "key": "engine_secret", "value": "",                      "type": "string" },
     { "key": "anomaly_id",    "value": "aaaaaaaa-0000-0000-0000-000000000001", "type": "string" }
   ],
