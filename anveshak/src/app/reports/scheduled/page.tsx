@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import DashboardShell from '@/components/DashboardShell'
 import { analytics } from '@/lib/apiClients'
 import type { AnalyticsReport } from '@/types/api'
@@ -309,8 +309,8 @@ export default function ScheduledReportsPage() {
                     const sevLabel = crit > 0 ? `${crit} CRIT` : high > 0 ? `${high} HIGH` : med > 0 ? `${med} MED` : 'CLEAR'
 
                     return (
-                      <>
-                        <tr key={r.id} onClick={() => setExpandedId(isExpanded ? null : r.id)}>
+                      <Fragment key={r.id}>
+                        <tr onClick={() => setExpandedId(isExpanded ? null : r.id)}>
                           <td><span className="rp-district">{r.district}</span></td>
                           <td>
                             <div className="rp-date">{fmtDate(r.report_date)}</div>
@@ -385,7 +385,7 @@ export default function ScheduledReportsPage() {
                             </td>
                           </tr>
                         )}
-                      </>
+                      </Fragment>
                     )
                   })}
                 </tbody>

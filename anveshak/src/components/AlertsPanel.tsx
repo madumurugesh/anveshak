@@ -47,9 +47,9 @@ export default function AlertsPanel() {
         {visibleAlerts.length === 0 && (
           <p className="text-gray-400 text-xs text-center py-6">No insights available.</p>
         )}
-        {visibleAlerts.map((alert) => (
+        {visibleAlerts.map((alert, idx) => (
           <div
-            key={alert.alertId}
+            key={alert.alertId ?? idx}
             className={`rounded-xl p-3.5 border transition-all cursor-pointer hover:shadow-sm ${
               severityBg[alert.severity] ?? 'bg-gray-50 border-gray-100'
             } ${isNewAlert(alert.alertId) ? 'ring-2 ring-[#F9AB00]/30' : ''}`}
